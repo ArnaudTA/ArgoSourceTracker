@@ -2,6 +2,7 @@ package application
 
 import (
 	"argocd-watcher/pkg/argocd"
+	"argocd-watcher/pkg/argocd/applicationset"
 	"context"
 
 	"github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
@@ -24,19 +25,65 @@ func getApplication(name string) (*v1alpha1.Application, error) {
 	return argoClient.ArgoprojV1alpha1().Applications(argocd.ArgocdNs).Get(context.TODO(), name, metav1.GetOptions{})
 }
 
-func GetApplicationTrack(name string) []*v1alpha1.Application {
-	track := []*v1alpha1.Application{}
+type TrackRecord struct {
+	Kind string `json:"kind,omitempty"`
+	Name string `json:"name,omitempty"`
+}
+
+func GetApplicationTrack(name string) []TrackRecord {
+	track := []TrackRecord{}
+	application, err := StoreGet(name)
+	if err != nil {
+		return track
+	}
+	metadata := application.ObjectMeta
 	for i := 0; i < 10; i++ {
-		app, err := StoreGet(name)
-		if err != nil {
-			break
-		}
-		track = append(track, &app)
-		if instance, ok := app.Labels[InstanceLabel]; ok {
-			name = instance
-		} else {
-			break
+		previousResource := getPreviousResource(metadata)
+		switch previousResource.Kind {
+		case "Application":
+			app, err := StoreGet(previousResource.Name)
+			if err != nil {
+				break
+			}
+			track = append(track, TrackRecord{
+				Kind: previousResource.Kind,
+				Name: app.Name,
+			})
+			metadata = app.ObjectMeta
+		case "ApplicationSet":
+			app, err := applicationset.StoreGet(previousResource.Name)
+			if err != nil {
+				break
+			}
+			track = append(track, TrackRecord{
+				Kind: previousResource.Kind,
+				Name: app.Name,
+			})
+			metadata = app.ObjectMeta
 		}
 	}
 	return track
+}
+
+type PreviousResource struct {
+	Kind string
+	Name string
+}
+
+func getPreviousResource(metadata metav1.ObjectMeta) PreviousResource {
+	if instance, ok := metadata.Labels[InstanceLabel]; ok {
+		return PreviousResource{
+			Kind: "Application",
+			Name: instance,
+		}
+	}
+	for _, owner := range metadata.OwnerReferences {
+		if owner.Kind == "ApplicationSet" {
+			return PreviousResource{
+				Kind: "ApplicationSet",
+				Name: owner.Name,
+			}
+		}
+	}
+	return PreviousResource{}
 }
