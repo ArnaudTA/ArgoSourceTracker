@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -56,12 +57,12 @@ func main() {
 			}
 			if strings.HasPrefix(repoURL, "https://") {
 				applicationSummary["protocol"] = "https"
-			} else if strings.HasPrefix(repoURL, "8gears") {
+				tags, err := getTagByIndex(repoURL, app.Spec.Source.Chart)
+				if err == nil {
+					applicationSummary["tags"] = tags
+				}
+			} else {
 				applicationSummary["protocol"] = "oci"
-				// tags, err := getTagByIndex(repoURL, app.Spec.Source.Chart)
-				// if err == nil {
-				// 	applicationSummary["tags"] = tags
-				// }
 			}
 			result = append(result, applicationSummary)
 		}
@@ -73,44 +74,46 @@ func main() {
 	r.Run(":8080")
 }
 
-// func getTagByIndex(repository, chart string) (string, error) {
-// 	tags := []string{}
-// 	// Appel HTTP pour récupérer le fichier index.yaml
-// 	resp, err := http.Get(repository + "/index.yaml")
-// 	if err != nil {
-// 		log.Fatalf("Erreur HTTP : %v", err)
-// 	}
-// 	defer resp.Body.Close()
+func getTagByIndex(repository, chart string) ([]byte, error) {
+	// tags := []string{}
+	// Appel HTTP pour récupérer le fichier index.yaml
+	resp, err := http.Get(repository + "/index.yaml")
+	if err != nil {
+		log.Fatalf("Erreur HTTP : %v", err)
+	}
+	defer resp.Body.Close()
 
-// 	if resp.StatusCode != http.StatusOK {
-// 		log.Fatalf("Code HTTP inattendu : %d", resp.StatusCode)
-// 	}
+	if resp.StatusCode != http.StatusOK {
+		log.Fatalf("Code HTTP inattendu : %d", resp.StatusCode)
+	}
 
-// 	body, err := io.ReadAll(resp.Body)
-// 	if err != nil {
-// 		log.Fatalf("Erreur de lecture du body : %v", err)
-// 	}
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalf("Erreur de lecture du body : %v", err)
+		return nil, err
+	}
 
-// 	// Parsing YAML au format Helm
-// 	index := &repo.IndexFile{}
-// 	if err := yaml.Unmarshal(body, index); err != nil {
-// 		log.Fatalf("Erreur de parsing YAML : %v", err)
-// 	}
+	// Parsing YAML au format Helm
+	// index := &repo.IndexFile{}
+	// if err := yaml.Unmarshal(body, index); err != nil {
+	// 	log.Fatalf("Erreur de parsing YAML : %v", err)
+	// }
 
-// 	// Optionnel : vérifier et trier l'index
-// 	index.SortEntries()
+	// // Optionnel : vérifier et trier l'index
+	// index.SortEntries()
 
-// 	// Afficher les charts trouvés
-// 	for name, versions := range index.Entries {
-// 		fmt.Printf("Chart: %s (%d versions)\n", name, len(versions))
-// 	}
-// 	for entry, versions := range index.Entries {
-// 		if entry != chart {
-// 			continue
-// 		}
-// 		for _, version := range versions {
-// 			tags = append(tags, version.Version)
-// 		}
-// 	}
-// 	return strings.Join(tags, " "), nil
-// }
+	// // Afficher les charts trouvés
+	// for name, versions := range index.Entries {
+	// 	fmt.Printf("Chart: %s (%d versions)\n", name, len(versions))
+	// }
+	// for entry, versions := range index.Entries {
+	// 	if entry != chart {
+	// 		continue
+	// 	}
+	// 	for _, version := range versions {
+	// 		tags = append(tags, version.Version)
+	// 	}
+	// }
+	return body, nil
+	// return strings.Join(tags, " "), nil
+}
