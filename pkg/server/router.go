@@ -1,10 +1,13 @@
 package server
 
 import (
+	"argocd-watcher/pkg/config"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 )
 
-func favIcon (c *gin.Context) {
+func favIcon(c *gin.Context) {
 	c.File("favicon.ico")
 }
 
@@ -18,7 +21,9 @@ func setupRouter() *gin.Engine {
 	return r
 }
 
-func StartGin() {
+func StartGin(cfg config.Config) {
 	r := setupRouter()
-	r.Run(":8080")
+	serverPort := strconv.Itoa(cfg.Server.Port)
+	serverAddr := cfg.Server.Address
+	r.Run(serverAddr + ":" + serverPort)
 }
