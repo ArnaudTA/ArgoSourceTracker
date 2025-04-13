@@ -6,7 +6,10 @@ toolchain go1.24.2
 
 require (
 	github.com/argoproj/argo-cd/v2 v2.14.9
+	github.com/blang/semver/v4 v4.0.0
 	github.com/gin-gonic/gin v1.9.1
+	github.com/stretchr/testify v1.10.0
+	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/apimachinery v0.31.2
 	k8s.io/client-go v0.31.2
 )
@@ -22,7 +25,6 @@ require (
 	github.com/argoproj/gitops-engine v0.7.1-0.20250328191959-6d3cf122b03f // indirect
 	github.com/argoproj/pkg v0.13.7-0.20230626144333-d56162821bd1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
-	github.com/blang/semver/v4 v4.0.0 // indirect
 	github.com/bmatcuk/doublestar/v4 v4.7.1 // indirect
 	github.com/bombsimon/logrusr/v2 v2.0.1 // indirect
 	github.com/bradleyfalzon/ghinstallation/v2 v2.12.0 // indirect
@@ -103,6 +105,7 @@ require (
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
 	github.com/pjbgf/sha1cd v0.3.2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/prometheus/client_golang v1.20.5 // indirect
 	github.com/prometheus/client_model v0.6.1 // indirect
 	github.com/prometheus/common v0.55.0 // indirect
@@ -142,7 +145,6 @@ require (
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/api v0.31.2 // indirect
 	k8s.io/apiextensions-apiserver v0.31.2 // indirect
 	k8s.io/apiserver v0.31.2 // indirect
