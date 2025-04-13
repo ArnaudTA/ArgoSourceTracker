@@ -10,7 +10,7 @@ import (
 
 func fetchApplications(c *gin.Context) {
 	// Liste des applications ArgoCD
-	applications, err := application.GetApplications()
+	applications, err := application.StoreList()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -18,7 +18,7 @@ func fetchApplications(c *gin.Context) {
 
 	// Créer une liste simplifiée des applications
 	result := map[string]parser.ApplicationSummary{}
-	appList := applications.Items
+	appList := applications
 	for _, app := range appList {
 		appSummary := parser.ParseApplication(app)
 		if len(appSummary.Charts) != 0 {
