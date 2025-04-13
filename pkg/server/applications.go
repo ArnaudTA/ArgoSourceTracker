@@ -18,11 +18,11 @@ func fetchApplications(c *gin.Context) {
 	}
 
 	// Créer une liste simplifiée des applications
-	result := map[string][]parser.ChartVersion{}
+	result := map[string]parser.ApplicationSummary{}
 	appList := applications.Items
 	for _, app := range appList {
 		appSummary := parser.ParseApplication(app)
-		if len(appSummary) != 0 {
+		if len(appSummary.Charts) != 0 {
 			result[app.Name] = appSummary
 		}
 	}

@@ -8,16 +8,16 @@ import (
 	"github.com/blang/semver/v4"
 )
 
-type ChartVersion struct {
+type Chart struct {
 	RepoURL  string   `json:"repoURL"`
 	Status   string   `json:"status,omitempty"`
 	Revision string   `json:"revision"`
 	NewTags  []string `json:"newTags,omitempty"`
-	Protocol 	string    `json:"type"`
+	Protocol string   `json:"type"`
 }
 
-func ParseSource(source v1alpha1.ApplicationSource, revision string) ChartVersion {
-	chartVersion := ChartVersion{
+func ParseSource(source v1alpha1.ApplicationSource, revision string) Chart {
+	chartVersion := Chart{
 		RepoURL:  source.RepoURL,
 		Revision: revision,
 	}
@@ -31,18 +31,21 @@ func ParseSource(source v1alpha1.ApplicationSource, revision string) ChartVersio
 	if len(chartVersion.NewTags) == 0 {
 		chartVersion.Status = "Up-to-date"
 	} else {
-		chartVersion.Status = "Obsolete"
+		chartVersion.Status = "Outdated"
 	}
 	return chartVersion
 }
 
+var instanceLabel string = "argocd.argoproj.io/instance"
+
 type ApplicationSummary struct {
-	ChartVersions []ChartVersion `json:"chartVersions"`
-	Status        string         `json:"Status"`
+	Charts   []Chart `json:"charts"`
+	Status   string  `json:"status,omitempty"`
+	Instance string  `json:"instance,omitempty"`
 }
 
-func ParseApplication(app v1alpha1.Application) []ChartVersion {
-	chartVersions := []ChartVersion{}
+func ParseApplication(app v1alpha1.Application) ApplicationSummary {
+	charts := []Chart{}
 	syncStatus := app.Status.Sync
 
 	if len(syncStatus.Revisions) != 0 {
@@ -50,11 +53,29 @@ func ParseApplication(app v1alpha1.Application) []ChartVersion {
 			if source.Chart == "" {
 				continue
 			}
-			chartVersions = append(chartVersions, ParseSource(source, syncStatus.Revisions[idx]))
+			charts = append(charts, ParseSource(source, syncStatus.Revisions[idx]))
 		}
 	} else if syncStatus.Revision != "" && syncStatus.ComparedTo.Source.Size() == 0 {
-		chartVersions = append(chartVersions, ParseSource(syncStatus.ComparedTo.Source, syncStatus.Revision))
+		charts = append(charts, ParseSource(syncStatus.ComparedTo.Source, syncStatus.Revision))
 	}
 
-	return chartVersions
+	appSummary := ApplicationSummary{
+		Charts: charts,
+		Status: getApplicationStatus(charts),
+	}
+
+	if instance, ok := app.Labels[instanceLabel]; ok {
+		appSummary.Instance = instance
+	}
+
+	return appSummary
+}
+
+func getApplicationStatus (charts []Chart) string {
+	for _, chart := range charts {
+		if chart.Status == "Outdated" {
+			return "Outdated"
+		}
+	}
+	return "Up-to-date"
 }
