@@ -15,9 +15,7 @@ func setupRouter() *gin.Engine {
 	r := gin.Default()
 	r.GET("/favicon.ico", favIcon)
 	r.GET("/apps", fetchApplications)
-	r.GET("/cache", getCache)
-	r.GET("/cache/keys", getCacheKeys)
-	r.GET("/invalidate", invalidateCache)
+	r.GET("/origin/:instance", getApplicationOrigin)
 	return r
 }
 

@@ -1,0 +1,13 @@
+services:
+  tracker:
+    build: .
+    image: ghcr.io/arnaudta/argo-source-tracker:dev
+    container_name: kube-app-watcher
+    env_file:
+      - .env
+    ports:
+      - "${PORT:-8080}:8080"
+    volumes:
+      - ${KUBECONFIG_DIR:-~/.kube/}:/root/.kube/:ro
+    environment:
+      - KUBECONFIG=/root/.kube/${KUBECONFIG_FILE:-config}

@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"argocd-watcher/pkg/argocd/application"
 	"argocd-watcher/pkg/registries"
 	"strings"
 
@@ -36,8 +37,6 @@ func ParseSource(source v1alpha1.ApplicationSource, revision string) Chart {
 	return chartVersion
 }
 
-var instanceLabel string = "argocd.argoproj.io/instance"
-
 type ApplicationSummary struct {
 	Charts   []Chart `json:"charts"`
 	Status   string  `json:"status,omitempty"`
@@ -64,14 +63,14 @@ func ParseApplication(app v1alpha1.Application) ApplicationSummary {
 		Status: getApplicationStatus(charts),
 	}
 
-	if instance, ok := app.Labels[instanceLabel]; ok {
+	if instance, ok := app.Labels[application.InstanceLabel]; ok {
 		appSummary.Instance = instance
 	}
 
 	return appSummary
 }
 
-func getApplicationStatus (charts []Chart) string {
+func getApplicationStatus(charts []Chart) string {
 	for _, chart := range charts {
 		if chart.Status == "Outdated" {
 			return "Outdated"

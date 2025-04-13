@@ -1,7 +1,7 @@
 package server
 
 import (
-	"argocd-watcher/pkg/argocd"
+	"argocd-watcher/pkg/argocd/application"
 	"argocd-watcher/pkg/parser"
 	"net/http"
 
@@ -9,9 +9,8 @@ import (
 )
 
 func fetchApplications(c *gin.Context) {
-
 	// Liste des applications ArgoCD
-	applications, err := argocd.GetApplications()
+	applications, err := application.GetApplications()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -28,4 +27,12 @@ func fetchApplications(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, result)
+}
+
+func getApplicationOrigin(c *gin.Context) {
+	instance := c.Param("instance")
+
+	appTrack := application.GetApplicationTrack(instance)
+
+	c.JSON(http.StatusOK, appTrack)
 }
