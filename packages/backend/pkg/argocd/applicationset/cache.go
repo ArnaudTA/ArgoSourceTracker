@@ -34,7 +34,7 @@ func StoreGet(applicationsetName string) (v1alpha1.ApplicationSet, error) {
 		return cachedApplicationset.(v1alpha1.ApplicationSet), nil
 	}
 
-	fmt.Printf("\nFetching application: %s\n", applicationsetName)
+	fmt.Printf("Fetching application: %s\n", applicationsetName)
 
 	applicationset, err := getApplicationset(applicationsetName)
 	if err != nil {

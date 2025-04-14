@@ -25,6 +25,7 @@ services:
     environment:
       - KUBECONFIG=/root/.kube/${KUBECONFIG_FILE:-config}
       - GO_ENV=development
+      - ARGOCD_URL=${ARGOCD_URL}
     ports:
       - "8080:8080"
     volumes:

@@ -2,11 +2,14 @@ basePath: /
 definitions:
   application.TrackRecord:
     properties:
+      applicationUrl:
+        type: string
       kind:
         type: string
       name:
         type: string
     required:
+    - applicationUrl
     - kind
     - name
     type: object
@@ -14,15 +17,21 @@ definitions:
     properties:
       charts:
         items:
-          $ref: '#/definitions/parser.Chart'
+          $ref: '#/definitions/parser.Source'
         type: array
       instance:
         type: string
       status:
         type: string
+    required:
+    - charts
+    - instance
+    - status
     type: object
-  parser.Chart:
+  parser.Source:
     properties:
+      chart:
+        type: string
       newTags:
         items:
           type: string
@@ -35,11 +44,15 @@ definitions:
         type: string
       type:
         type: string
+    required:
+    - chart
     type: object
   server.Check:
     properties:
       status:
         type: string
+    required:
+    - status
     type: object
 host: localhost:8080
 info:
@@ -67,6 +80,25 @@ paths:
               $ref: '#/definitions/parser.ApplicationSummary'
             type: object
       summary: Liste les applications
+      tags:
+      - Applications
+  /api/v1/apps/{application}:
+    get:
+      description: Retourne application et le rapport de versions
+      parameters:
+      - description: Application cible
+        in: path
+        name: application
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/parser.ApplicationSummary'
+      summary: Récupe une application
       tags:
       - Applications
   /api/v1/apps/{application}/origin:

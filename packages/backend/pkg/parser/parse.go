@@ -9,42 +9,44 @@ import (
 	"github.com/blang/semver/v4"
 )
 
-type Chart struct {
+type Source struct {
 	RepoURL  string   `json:"repoURL"`
 	Status   string   `json:"status,omitempty"`
 	Revision string   `json:"revision"`
 	NewTags  []string `json:"newTags,omitempty"`
 	Protocol string   `json:"type"`
+	Chart    string   `json:"chart" binding:"required"`
 }
 
-func ParseSource(source v1alpha1.ApplicationSource, revision string) Chart {
-	chartVersion := Chart{
+func ParseSource(source v1alpha1.ApplicationSource, revision string) Source {
+	sourceVersion := Source{
 		RepoURL:  source.RepoURL,
 		Revision: revision,
+		Chart:    source.Chart,
 	}
 	semVerRevision := semver.MustParse(revision)
 	if strings.HasPrefix(source.RepoURL, "https://") || strings.HasPrefix(source.RepoURL, "http://") {
-		chartVersion.NewTags = registries.GetGreaterTags(source.RepoURL, source.Chart, semVerRevision)
-		chartVersion.Protocol = "HTTP"
+		sourceVersion.NewTags = registries.GetGreaterTags(source.RepoURL, source.Chart, semVerRevision)
+		sourceVersion.Protocol = "HTTP"
 	} else {
-		chartVersion.Protocol = "OCI"
+		sourceVersion.Protocol = "OCI"
 	}
-	if len(chartVersion.NewTags) == 0 {
-		chartVersion.Status = "Up-to-date"
+	if len(sourceVersion.NewTags) == 0 {
+		sourceVersion.Status = "Up-to-date"
 	} else {
-		chartVersion.Status = "Outdated"
+		sourceVersion.Status = "Outdated"
 	}
-	return chartVersion
+	return sourceVersion
 }
 
 type ApplicationSummary struct {
-	Charts   []Chart `json:"charts"`
-	Status   string  `json:"status,omitempty"`
-	Instance string  `json:"instance,omitempty"`
+	Charts   []Source `json:"charts" binding:"required"`
+	Status   string   `json:"status,omitempty" binding:"required"`
+	Instance string   `json:"instance,omitempty" binding:"required"`
 }
 
 func ParseApplication(app v1alpha1.Application) ApplicationSummary {
-	charts := []Chart{}
+	charts := []Source{}
 	syncStatus := app.Status.Sync
 
 	if len(syncStatus.Revisions) != 0 {
@@ -70,7 +72,7 @@ func ParseApplication(app v1alpha1.Application) ApplicationSummary {
 	return appSummary
 }
 
-func getApplicationStatus(charts []Chart) string {
+func getApplicationStatus(charts []Source) string {
 	for _, chart := range charts {
 		if chart.Status == "Outdated" {
 			return "Outdated"

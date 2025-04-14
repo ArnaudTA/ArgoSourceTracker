@@ -13,7 +13,7 @@ import (
 )
 
 type Check struct {
-	Status string `json:"status,omitempty"`
+	Status string `json:"status,omitempty" binding:"required"`
 }
 
 // @Summary Status
@@ -23,9 +23,7 @@ type Check struct {
 // @Success 200 {object} Check
 // @Router /api/v1/health [get]
 func health(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"status": "ok",
-	})
+	c.JSON(200, Check{ Status: "OK" })
 }
 
 func setupRouter() *gin.Engine {
@@ -48,6 +46,7 @@ func setupRouter() *gin.Engine {
 	{
 		v1.GET("/health", health)
 		v1.GET("/apps", fetchApplications)
+		v1.GET("/apps/:application", fetchApplication)
 		v1.GET("/apps/:application/origin", getApplicationOrigin)
 	}
 
@@ -55,16 +54,24 @@ func setupRouter() *gin.Engine {
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// Serve static files from the Vue app
-	r.StaticFS("/web", http.Dir("static"))
+	r.StaticFS("/ui", http.Dir("static"))
+
+	// Serve static files from the Vue app
+	r.StaticFS("/assets", http.Dir("static/assets"))
+
+	// Serve static files from the Vue app
+	r.GET("/", func(c *gin.Context) {
+		c.Redirect(301, "/ui")
+	})
 
 	r.Run(":8080")
 
 	return r
 }
 
-func StartGin(cfg config.Config) {
+func StartGin() {
 	r := setupRouter()
-	serverPort := strconv.Itoa(cfg.Server.Port)
-	serverAddr := cfg.Server.Address
+	serverPort := strconv.Itoa(config.Global.Server.Port)
+	serverAddr := config.Global.Server.Address
 	r.Run(serverAddr + ":" + serverPort)
 }

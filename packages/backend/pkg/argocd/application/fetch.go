@@ -3,7 +3,9 @@ package application
 import (
 	"argocd-watcher/pkg/argocd"
 	"argocd-watcher/pkg/argocd/applicationset"
+	"argocd-watcher/pkg/config"
 	"context"
+	"fmt"
 
 	"github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -13,7 +15,7 @@ var InstanceLabel string = "argocd.argoproj.io/instance"
 
 func getApplications() ([]v1alpha1.Application, error) {
 	argoClient := argocd.GetArgoCDClient()
-	apps, err := argoClient.ArgoprojV1alpha1().Applications(argocd.ArgocdNs).List(context.TODO(), metav1.ListOptions{})
+	apps, err := argoClient.ArgoprojV1alpha1().Applications(config.Global.Argocd.Namespace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -22,13 +24,13 @@ func getApplications() ([]v1alpha1.Application, error) {
 
 func getApplication(name string) (*v1alpha1.Application, error) {
 	argoClient := argocd.GetArgoCDClient()
-	return argoClient.ArgoprojV1alpha1().Applications(argocd.ArgocdNs).Get(context.TODO(), name, metav1.GetOptions{})
+	return argoClient.ArgoprojV1alpha1().Applications(config.Global.Argocd.Namespace).Get(context.TODO(), name, metav1.GetOptions{})
 }
 
 type TrackRecord struct {
 	Kind string `json:"kind" binding:"required"`
 	Name string `json:"name" binding:"required"`
-	Sources []v1alpha1.ApplicationSource `json:"sources" binding:"required"`
+	ApplicationUrl string `json:"applicationUrl" binding:"required"`
 }
 
 func GetApplicationTrack(name string) []TrackRecord {
@@ -49,7 +51,7 @@ func GetApplicationTrack(name string) []TrackRecord {
 			track = append(track, TrackRecord{
 				Kind: previousResource.Kind,
 				Name: app.Name,
-				Sources: append(app.Status.Sync.ComparedTo.Sources, app.Status.Sync.ComparedTo.Source),
+				ApplicationUrl: fmt.Sprintf("%s/applications/%s/%s", config.Global.Argocd.Url, config.Global.Argocd.Namespace, app.Name),
 			})
 			metadata = app.ObjectMeta
 		case "ApplicationSet":

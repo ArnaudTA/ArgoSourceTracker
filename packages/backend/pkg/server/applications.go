@@ -46,6 +46,27 @@ func fetchApplications(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
+// @Summary Récupe une application
+// @Description Retourne application et le rapport de versions
+// @Tags Applications
+// @Produce json
+// @Success 200 {object} parser.ApplicationSummary
+// @Param application path string true "Application cible"
+// @Router /api/v1/apps/{application} [get]
+func fetchApplication(c *gin.Context) {
+	name := c.Param("application")
+	// Liste des applications ArgoCD
+	application, err := application.StoreGet(name)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	appSummary := parser.ParseApplication(application)
+
+	c.JSON(http.StatusOK, appSummary)
+}
+
 // @Summary Remonte l'origine d'une application
 // @Description Liste les applications et applications qui ménent à cette application
 // @Tags Track Origin

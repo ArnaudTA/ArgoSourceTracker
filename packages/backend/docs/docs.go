@@ -46,6 +46,35 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/apps/{application}": {
+            "get": {
+                "description": "Retourne application et le rapport de versions",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Applications"
+                ],
+                "summary": "Récupe une application",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Application cible",
+                        "name": "application",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/parser.ApplicationSummary"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/apps/{application}/origin": {
             "get": {
                 "description": "Liste les applications et applications qui ménent à cette application",
@@ -107,10 +136,14 @@ const docTemplate = `{
         "application.TrackRecord": {
             "type": "object",
             "required": [
+                "applicationUrl",
                 "kind",
                 "name"
             ],
             "properties": {
+                "applicationUrl": {
+                    "type": "string"
+                },
                 "kind": {
                     "type": "string"
                 },
@@ -121,11 +154,16 @@ const docTemplate = `{
         },
         "parser.ApplicationSummary": {
             "type": "object",
+            "required": [
+                "charts",
+                "instance",
+                "status"
+            ],
             "properties": {
                 "charts": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/parser.Chart"
+                        "$ref": "#/definitions/parser.Source"
                     }
                 },
                 "instance": {
@@ -136,9 +174,15 @@ const docTemplate = `{
                 }
             }
         },
-        "parser.Chart": {
+        "parser.Source": {
             "type": "object",
+            "required": [
+                "chart"
+            ],
             "properties": {
+                "chart": {
+                    "type": "string"
+                },
                 "newTags": {
                     "type": "array",
                     "items": {
@@ -161,6 +205,9 @@ const docTemplate = `{
         },
         "server.Check": {
             "type": "object",
+            "required": [
+                "status"
+            ],
             "properties": {
                 "status": {
                     "type": "string"

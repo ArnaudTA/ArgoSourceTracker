@@ -18,7 +18,7 @@ func StoreGet(applicationName string) (v1alpha1.Application, error) {
 		return cachedApplication.(v1alpha1.Application), nil
 	}
 
-	fmt.Printf("\nFetching application: %s\n", applicationName)
+	fmt.Printf("Fetching application: %s\n", applicationName)
 
 	application, err := getApplication(applicationName)
 	if err != nil {

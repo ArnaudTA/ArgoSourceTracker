@@ -11,17 +11,19 @@
  */
 
 export interface ApplicationTrackRecord {
+  applicationUrl: string;
   kind: string;
   name: string;
 }
 
 export interface ParserApplicationSummary {
-  charts?: ParserChart[];
-  instance?: string;
-  status?: string;
+  charts: ParserSource[];
+  instance: string;
+  status: string;
 }
 
-export interface ParserChart {
+export interface ParserSource {
+  chart: string;
   newTags?: string[];
   repoURL?: string;
   revision?: string;
@@ -30,7 +32,7 @@ export interface ParserChart {
 }
 
 export interface ServerCheck {
-  status?: string;
+  status: string;
 }
 
 import type {
@@ -238,6 +240,22 @@ export class Api<
         path: `/api/v1/apps`,
         method: "GET",
         query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retourne application et le rapport de versions
+     *
+     * @tags Applications
+     * @name V1AppsDetail
+     * @summary Récupe une application
+     * @request GET:/api/v1/apps/{application}
+     */
+    v1AppsDetail: (application: string, params: RequestParams = {}) =>
+      this.request<ParserApplicationSummary, any>({
+        path: `/api/v1/apps/${application}`,
+        method: "GET",
         format: "json",
         ...params,
       }),

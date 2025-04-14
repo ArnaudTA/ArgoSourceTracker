@@ -9,18 +9,14 @@ import (
 	"argocd-watcher/pkg/argocd"
 	"argocd-watcher/pkg/config"
 	"argocd-watcher/pkg/server"
-	"fmt"
 	"log"
 )
 
 func main() {
-	var cfg config.Config
-	err := config.Load(&cfg)
-	if err != nil {
+	if err := config.LoadGlobal(); err != nil {
 		log.Fatal(err)
 	}
-
-	fmt.Print(cfg)
-	argocd.InitClient(cfg)
-	server.StartGin(cfg)
+	argocd.InitClient()
+	argocd.LoadArgoConf()
+	server.StartGin()
 }

@@ -2,6 +2,7 @@ package applicationset
 
 import (
 	"argocd-watcher/pkg/argocd"
+	"argocd-watcher/pkg/config"
 	"context"
 
 	"github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
@@ -12,7 +13,7 @@ var InstanceLabel string = "argocd.argoproj.io/instance"
 
 func getApplicationsets() ([]v1alpha1.ApplicationSet, error) {
 	argoClient := argocd.GetArgoCDClient()
-	apps, err := argoClient.ArgoprojV1alpha1().ApplicationSets(argocd.ArgocdNs).List(context.TODO(), metav1.ListOptions{})
+	apps, err := argoClient.ArgoprojV1alpha1().ApplicationSets(config.Global.Argocd.Namespace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -21,6 +22,6 @@ func getApplicationsets() ([]v1alpha1.ApplicationSet, error) {
 
 func getApplicationset(name string) (*v1alpha1.ApplicationSet, error) {
 	argoClient := argocd.GetArgoCDClient()
-	return argoClient.ArgoprojV1alpha1().ApplicationSets(argocd.ArgocdNs).Get(context.TODO(), name, metav1.GetOptions{})
+	return argoClient.ArgoprojV1alpha1().ApplicationSets(config.Global.Argocd.Namespace).Get(context.TODO(), name, metav1.GetOptions{})
 }
 

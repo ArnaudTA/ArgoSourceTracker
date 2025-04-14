@@ -14,18 +14,22 @@ defineProps<{
             name: name
         }
     })">
-        {{ name }}
+        <h4>{{ name }}</h4>
     </div>
 </template>
 
 <style scoped>
 .tile {
-    min-width: 10rem;
+    cursor: pointer;
+    text-align: left;
+    min-width: 8rem;
+    min-height: 4rem;
     background-color: lightgray;
     border-radius: .2rem;
     box-shadow: 0 0 .3rem 0rem lightgray;
     border-color: gray;
     border-width: 1px;
     border-style: solid;
+    padding: 1rem;
 }
 </style>

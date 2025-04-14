@@ -1,0 +1,14 @@
+:root {
+    --menu-bg-color: #0f2733;
+    --menu-text-color: #fff;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+body {
+    background-color: #dee6eb;
+}
+
+.menu {
+    background-color: var(--menu-bg-color);
+    color: var(--menu-text-color);
+}

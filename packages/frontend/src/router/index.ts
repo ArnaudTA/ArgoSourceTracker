@@ -13,20 +13,29 @@ const ApplicationDetails = () => import('../views/ApplicationDetails.vue')
 
 const MAIN_TITLE = 'ArgoCD Source Tracker'
 
-export const routes: Readonly<RouteRecordRaw[]> = [{
-        path: '/',
-        name: 'Home',
-        component: Home,
-    },
+export const routes: Readonly<RouteRecordRaw[]> = [
     {
-        path: '/application/:name',
-        name: 'Application',
-        props(to) {
-            return {
-                name: to.params.name
-            }
-        },
-        component: ApplicationDetails,
+        path: '/',
+        redirect: { name: 'Home' }
+    }, {
+        path: '/ui',
+        children: [
+            {
+                path: '',
+                name: 'Home',
+                component: Home,
+            },
+            {
+                path: 'application/:name',
+                name: 'Application',
+                props(to) {
+                    return {
+                        name: to.params.name
+                    }
+                },
+                component: ApplicationDetails,
+            },
+        ]
     },
     {
         path: '/:pathMatch(.*)*',
