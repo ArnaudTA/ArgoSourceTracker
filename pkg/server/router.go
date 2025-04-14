@@ -5,6 +5,9 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	_ "argocd-watcher/docs" // 👈 important pour init Swagger
+	ginSwagger "github.com/swaggo/gin-swagger"
+	swaggerFiles "github.com/swaggo/files"
 )
 
 func favIcon(c *gin.Context) {
@@ -15,7 +18,9 @@ func setupRouter() *gin.Engine {
 	r := gin.Default()
 	r.GET("/favicon.ico", favIcon)
 	r.GET("/apps", fetchApplications)
-	r.GET("/origin/:instance", getApplicationOrigin)
+	r.GET("/origin/:application", getApplicationOrigin)
+	// Route Swagger
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	return r
 }
 

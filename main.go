@@ -1,3 +1,8 @@
+// @title ArgoSourceTracker API
+// @version 1.0
+// @description API simple pour lister les applications ArgoCD et suivre les versions des charts
+// @host localhost:8080
+// @BasePath /
 package main
 
 import (

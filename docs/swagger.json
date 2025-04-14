@@ -1,0 +1,133 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API simple pour lister les applications ArgoCD et suivre les versions des charts",
+        "title": "ArgoSourceTracker API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+        "/apps": {
+            "get": {
+                "description": "Retourne la liste des applications et le rapport des versions",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Applications"
+                ],
+                "summary": "Liste les applications",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filtre les applications",
+                        "name": "filter",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "$ref": "#/definitions/parser.ApplicationSummary"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/origin/{application}": {
+            "get": {
+                "description": "Liste les applications et applications qui ménent à cette application",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Track Origin"
+                ],
+                "summary": "Remonte l'origine d'une application",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Application cible",
+                        "name": "application",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/application.TrackRecord"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "application.TrackRecord": {
+            "type": "object",
+            "properties": {
+                "kind": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "parser.ApplicationSummary": {
+            "type": "object",
+            "properties": {
+                "charts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/parser.Chart"
+                    }
+                },
+                "instance": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "parser.Chart": {
+            "type": "object",
+            "properties": {
+                "newTags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "repoURL": {
+                    "type": "string"
+                },
+                "revision": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

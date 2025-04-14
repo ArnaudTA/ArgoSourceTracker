@@ -1,0 +1,88 @@
+basePath: /
+definitions:
+  application.TrackRecord:
+    properties:
+      kind:
+        type: string
+      name:
+        type: string
+    type: object
+  parser.ApplicationSummary:
+    properties:
+      charts:
+        items:
+          $ref: '#/definitions/parser.Chart'
+        type: array
+      instance:
+        type: string
+      status:
+        type: string
+    type: object
+  parser.Chart:
+    properties:
+      newTags:
+        items:
+          type: string
+        type: array
+      repoURL:
+        type: string
+      revision:
+        type: string
+      status:
+        type: string
+      type:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API simple pour lister les applications ArgoCD et suivre les versions
+    des charts
+  title: ArgoSourceTracker API
+  version: "1.0"
+paths:
+  /apps:
+    get:
+      description: Retourne la liste des applications et le rapport des versions
+      parameters:
+      - description: Filtre les applications
+        in: query
+        name: filter
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              $ref: '#/definitions/parser.ApplicationSummary'
+            type: object
+      summary: Liste les applications
+      tags:
+      - Applications
+  /origin/{application}:
+    get:
+      description: Liste les applications et applications qui ménent à cette application
+      parameters:
+      - description: Application cible
+        in: path
+        name: application
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/application.TrackRecord'
+            type: array
+        "400":
+          description: Bad Request
+          schema: {}
+      summary: Remonte l'origine d'une application
+      tags:
+      - Track Origin
+swagger: "2.0"
