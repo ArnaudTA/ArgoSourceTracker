@@ -26,8 +26,9 @@ func getApplication(name string) (*v1alpha1.Application, error) {
 }
 
 type TrackRecord struct {
-	Kind string `json:"kind,omitempty"`
-	Name string `json:"name,omitempty"`
+	Kind string `json:"kind" binding:"required"`
+	Name string `json:"name" binding:"required"`
+	Sources []v1alpha1.ApplicationSource `json:"sources" binding:"required"`
 }
 
 func GetApplicationTrack(name string) []TrackRecord {
@@ -48,6 +49,7 @@ func GetApplicationTrack(name string) []TrackRecord {
 			track = append(track, TrackRecord{
 				Kind: previousResource.Kind,
 				Name: app.Name,
+				Sources: append(app.Status.Sync.ComparedTo.Sources, app.Status.Sync.ComparedTo.Source),
 			})
 			metadata = app.ObjectMeta
 		case "ApplicationSet":

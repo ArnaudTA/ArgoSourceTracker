@@ -1,0 +1,8 @@
+services:
+  prod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ghcr.io/arnaudta/argosourcetracker:dev
+    ports:
+      - "8080:8080"

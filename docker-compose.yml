@@ -1,13 +1,32 @@
 services:
-  tracker:
-    build: .
-    image: ghcr.io/arnaudta/argo-source-tracker:dev
-    container_name: kube-app-watcher
+  dev-frontend:
+    build:
+      context: ./packages/frontend
+      dockerfile: Dockerfile
+    image: ghcr.io/arnaudta/argosourcetracker-front:dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./packages/frontend:/app
+      - ./packages/backend/docs:/app/docs
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://localhost:8080
+    depends_on:
+      - dev-backend
+
+  dev-backend:
+    build:
+      context: ./packages/backend
+      dockerfile: Dockerfile
+    image: ghcr.io/arnaudta/argosourcetracker-back:dev
     env_file:
       - .env
-    ports:
-      - "${PORT:-8080}:8080"
-    volumes:
-      - ${KUBECONFIG_DIR:-~/.kube/}:/root/.kube/:ro
     environment:
       - KUBECONFIG=/root/.kube/${KUBECONFIG_FILE:-config}
+      - GO_ENV=development
+    ports:
+      - "8080:8080"
+    volumes:
+      - ${KUBECONFIG_DIR:-~/.kube/}:/root/.kube/:ro
+      - ./packages/backend:/app

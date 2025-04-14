@@ -6,6 +6,9 @@ definitions:
         type: string
       name:
         type: string
+    required:
+    - kind
+    - name
     type: object
   parser.ApplicationSummary:
     properties:
@@ -33,6 +36,11 @@ definitions:
       type:
         type: string
     type: object
+  server.Check:
+    properties:
+      status:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact: {}
@@ -41,7 +49,7 @@ info:
   title: ArgoSourceTracker API
   version: "1.0"
 paths:
-  /apps:
+  /api/v1/apps:
     get:
       description: Retourne la liste des applications et le rapport des versions
       parameters:
@@ -61,7 +69,7 @@ paths:
       summary: Liste les applications
       tags:
       - Applications
-  /origin/{application}:
+  /api/v1/apps/{application}/origin:
     get:
       description: Liste les applications et applications qui ménent à cette application
       parameters:
@@ -85,4 +93,17 @@ paths:
       summary: Remonte l'origine d'une application
       tags:
       - Track Origin
+  /api/v1/health:
+    get:
+      description: Retourne le status de l'application
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.Check'
+      summary: Status
+      tags:
+      - Healthcheck
 swagger: "2.0"

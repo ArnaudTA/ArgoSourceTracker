@@ -1,30 +1,22 @@
-# Utilise une image Go officielle pour le build
-FROM golang:1.24.2 AS builder
+FROM node:22-alpine AS frontend-builder
 
-# Crée un dossier de travail
+WORKDIR /app/frontend
+COPY ./packages/frontend/package*.json ./
+RUN npm install
+COPY ./packages/frontend/ ./
+RUN npm run build
+
+FROM golang:1.24-alpine
+
 WORKDIR /app
-
-# Copie les fichiers go
-COPY go.mod ./
-COPY go.sum ./
+COPY packages/backend/go.* ./
 RUN go mod download
 
-# Copie le reste du code
-COPY . .
+COPY ./packages/backend/ ./
+COPY --from=frontend-builder /app/frontend/dist ./static
 
-# Compile l’app en binaire statique
-RUN CGO_ENABLED=0 GOOS=linux go build -o app
+RUN go build -o main .
 
-# Image finale minimaliste
-FROM alpine:latest
-
-WORKDIR /root/
-
-# Copie le binaire depuis l’étape de build
-COPY --from=builder /app/app .
-
-# Expose le port
 EXPOSE 8080
 
-# Lancement
-CMD ["./app"]
+CMD ["./main"]

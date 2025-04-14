@@ -14,7 +14,7 @@ import (
 // @Produce json
 // @Success 200 {object} map[string]parser.ApplicationSummary
 // @Param filter query string false "Filtre les applications"
-// @Router /apps [get]
+// @Router /api/v1/apps [get]
 func fetchApplications(c *gin.Context) {
 	filter := c.DefaultQuery("filter", "standard")
 	// Liste des applications ArgoCD
@@ -53,7 +53,7 @@ func fetchApplications(c *gin.Context) {
 // @Success 200 {array} application.TrackRecord
 // @Failure 400 {object} error
 // @Param application path string true "Application cible"
-// @Router /origin/{application} [get]
+// @Router /api/v1/apps/{application}/origin [get]
 func getApplicationOrigin(c *gin.Context) {
 	name := c.Param("application")
 	if name == "" {

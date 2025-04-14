@@ -13,12 +13,18 @@ type ServerConfig struct {
 	Address string `json:"address" env:"SERVER_ADDR" default:"0.0.0.0" flag:"server.addr"`
 }
 
+type ArgocdConfig struct {
+	Namespace string `json:"ns" env:"ARGOCD_NS" default:"argocd" flag:"argocd.ns"`
+	Url       string `json:"address" env:"ARGOCD_URL" default:"" flag:"argocd.url"`
+}
+
 type Config struct {
 	Server           ServerConfig `json:"server"`
 	RegistryCacheTTL int          `json:"registryCacheTTL" env:"REG_CACHE_TTL" default:"300" flag:"reg-cache-ttl"`
-	ArgocdNs         string       `json:"argocdNamespace" env:"ARGOCD_NS" default:"argocd" flag:"argocd-ns"`
 	Kubeconfig       string       `json:"Kubeconfig" env:"KUBECONFIG" default:"" flag:"kubeconfig"`
+	Argocd           ArgocdConfig `json:"argocd"`
 }
+
 func loadStruct(v reflect.Value, t reflect.Type, flagSet *flag.FlagSet, flagValues map[string]*string) error {
 	for i := 0; i < t.NumField(); i++ {
 		fieldVal := v.Field(i)
