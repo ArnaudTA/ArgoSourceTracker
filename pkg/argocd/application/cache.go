@@ -2,18 +2,20 @@ package application
 
 import (
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 )
 
-var Store = map[string]v1alpha1.Application{}
+var Cache = sync.Map{}
+// var Store = map[string]v1alpha1.Application{}
 
 func StoreGet(applicationName string) (v1alpha1.Application, error) {
-	cachedApplication, ok := Store[applicationName]
+	cachedApplication, ok := Cache.Load(applicationName)
 	if ok {
 		fmt.Printf("Use Application cache for: %s\n", applicationName)
-		return cachedApplication, nil
+		return cachedApplication.(v1alpha1.Application), nil
 	}
 
 	fmt.Printf("\nFetching application: %s\n", applicationName)
@@ -23,7 +25,7 @@ func StoreGet(applicationName string) (v1alpha1.Application, error) {
 		panic(err)
 	}
 
-	Store[applicationName] = *application
+	Cache.Store(applicationName, *application)
 
 	time.AfterFunc(300*time.Second, func() { StoreDeleteApplication(applicationName) })
 
@@ -39,7 +41,7 @@ func StoreList() ([]v1alpha1.Application, error) {
 	}
 
 	for _, app := range applications {
-		Store[app.Name] = app
+		Cache.Store(app.Name, app)
 		time.AfterFunc(300*time.Second, func() { StoreDeleteApplication(app.Name) })
 	}
 
@@ -47,5 +49,5 @@ func StoreList() ([]v1alpha1.Application, error) {
 }
 
 func StoreDeleteApplication(applicationName string) {
-	delete(Store, applicationName)
+	Cache.Delete(applicationName)
 }

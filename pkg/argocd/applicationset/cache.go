@@ -2,6 +2,7 @@ package applicationset
 
 import (
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
@@ -24,13 +25,13 @@ type IndexFile struct {
 	Entries map[string]ChartVersions `json:"entries"`
 }
 
-var Store = map[string]v1alpha1.ApplicationSet{}
+var Cache = sync.Map{}
 
 func StoreGet(applicationsetName string) (v1alpha1.ApplicationSet, error) {
-	cachedApplicationset, ok := Store[applicationsetName]
+	cachedApplicationset, ok := Cache.Load(applicationsetName)
 	if ok {
 		fmt.Printf("Use Application cache for: %s\n", applicationsetName)
-		return cachedApplicationset, nil
+		return cachedApplicationset.(v1alpha1.ApplicationSet), nil
 	}
 
 	fmt.Printf("\nFetching application: %s\n", applicationsetName)
@@ -40,7 +41,7 @@ func StoreGet(applicationsetName string) (v1alpha1.ApplicationSet, error) {
 		panic(err)
 	}
 
-	Store[applicationsetName] = *applicationset
+	Cache.Store(applicationsetName, *applicationset)
 
 	time.AfterFunc(300*time.Second, func() { storeDeleteApplicationset(applicationsetName) })
 
@@ -56,7 +57,7 @@ func StoreList() ([]v1alpha1.ApplicationSet, error) {
 	}
 
 	for _, appset := range applicationsets {
-		Store[appset.Name] = appset
+		Cache.Store(appset.Name, appset)
 		time.AfterFunc(300*time.Second, func() { storeDeleteApplicationset(appset.Name) })
 	}
 
@@ -64,5 +65,5 @@ func StoreList() ([]v1alpha1.ApplicationSet, error) {
 }
 
 func storeDeleteApplicationset(applicationName string) {
-	delete(Store, applicationName)
+	Cache.Delete(applicationName)
 }
