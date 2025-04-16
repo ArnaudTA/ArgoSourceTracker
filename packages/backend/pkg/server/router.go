@@ -2,12 +2,14 @@ package server
 
 import (
 	"argocd-watcher/pkg/config"
+	"fmt"
 	"net/http"
 	"strconv"
 
 	_ "argocd-watcher/docs" // 👈 important pour init Swagger
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -23,12 +25,17 @@ type Check struct {
 // @Success 200 {object} Check
 // @Router /api/v1/health [get]
 func health(c *gin.Context) {
-	c.JSON(200, Check{ Status: "OK" })
+	c.JSON(200, Check{Status: "OK"})
 }
 
 func setupRouter() *gin.Engine {
-	r := gin.Default()
+	gin.DefaultWriter = logrus.StandardLogger().Out // redirige vers logrus
+	r := gin.New()
 
+	// Ajoute les middlewares
+	r.Use(gin.Logger(), gin.Recovery())
+
+	go startMetrics(r)
 	// Enable CORS
 	r.Use(func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
@@ -46,25 +53,29 @@ func setupRouter() *gin.Engine {
 	{
 		v1.GET("/health", health)
 		v1.GET("/apps", fetchApplications)
-		v1.GET("/apps/:application", fetchApplication)
-		v1.GET("/apps/:application/origin", getApplicationOrigin)
+		v1.GET("/apps/:namespace/:name", fetchApplication)
+		v1.GET("/apps/:namespace/:name/origin", getApplicationOrigin)
 	}
 
 	// Swagger documentation
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// Serve static files from the Vue app
-	r.StaticFS("/ui", http.Dir("static"))
-
-	// Serve static files from the Vue app
 	r.StaticFS("/assets", http.Dir("static/assets"))
+
+	// Pour gérer les routes SPA (vue-router en mode history)
+	r.GET("/ui/*any", func(c *gin.Context) {
+		c.File("./static/index.html")
+	})
 
 	// Serve static files from the Vue app
 	r.GET("/", func(c *gin.Context) {
 		c.Redirect(301, "/ui")
 	})
 
-	r.Run(":8080")
+	listen := fmt.Sprintf("%s:%d", config.Global.Server.Address, config.Global.Server.Port)
+	logrus.Infof("Server listen on: %s\n", listen)
+	r.Run(listen)
 
 	return r
 }

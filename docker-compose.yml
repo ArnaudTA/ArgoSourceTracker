@@ -1,5 +1,5 @@
 services:
-  dev-frontend:
+  client:
     build:
       context: ./packages/frontend
       dockerfile: Dockerfile
@@ -10,12 +10,10 @@ services:
       - ./packages/frontend:/app
       - ./packages/backend/docs:/app/docs
       - /app/node_modules
-    environment:
-      - VITE_API_URL=http://localhost:8080
     depends_on:
-      - dev-backend
+      - api
 
-  dev-backend:
+  api:
     build:
       context: ./packages/backend
       dockerfile: Dockerfile
@@ -25,9 +23,6 @@ services:
     environment:
       - KUBECONFIG=/root/.kube/${KUBECONFIG_FILE:-config}
       - GO_ENV=development
-      - ARGOCD_URL=${ARGOCD_URL}
-    ports:
-      - "8080:8080"
     volumes:
       - ${KUBECONFIG_DIR:-~/.kube/}:/root/.kube/:ro
       - ./packages/backend:/app

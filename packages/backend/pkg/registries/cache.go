@@ -1,15 +1,17 @@
 package registries
 
 import (
-	"fmt"
+	"errors"
 	"io"
-	"log"
 	"net/http"
+	"strings"
 	"time"
 
-	"github.com/blang/semver/v4"
-	"gopkg.in/yaml.v3"
 	"sync"
+
+	"github.com/blang/semver/v4"
+	"github.com/sirupsen/logrus"
+	"gopkg.in/yaml.v3"
 )
 
 // Metadata for a Chart file. This models the structure of a Chart.yaml file.
@@ -31,43 +33,46 @@ type IndexFile struct {
 
 var Cache = sync.Map{}
 
-func StoreGet(registry string) (IndexFile, error) {
+func StoreGet(registry string) (*IndexFile, error) {
+	if !strings.HasPrefix(registry, "https://") && !strings.HasPrefix(registry, "http://") {
+		return nil, errors.New("invalid url")
+	}
 	cachedVersion, ok := Cache.Load(registry)
 	if ok {
-		fmt.Printf("Use cache for: %s\n", registry)
-		return cachedVersion.(IndexFile), nil
+		logrus.Debugf("Use cache for: %s\n", registry)
+		return cachedVersion.(*IndexFile), nil
 	}
 
-	fmt.Printf("Fetching: %s\n", registry)
+	logrus.Debugf("Fetching: %s\n", registry)
 
 	// Appel HTTP pour récupérer le fichier index.yaml
 	resp, err := http.Get(registry + "/index.yaml")
 	if err != nil {
-		log.Fatalf("Erreur HTTP : %v", err)
+		logrus.Fatalf("Erreur HTTP : %v", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		log.Fatalf("Code HTTP inattendu : %d", resp.StatusCode)
+		logrus.Fatalf("Code HTTP inattendu : %d", resp.StatusCode)
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatalf("Erreur de lecture du body : %v", err)
+		logrus.Fatalf("Erreur de lecture du body : %v", err)
 		panic(err)
 	}
 
 	// Parsing YAML au format Helm
 	index := IndexFile{}
 	if err := yaml.Unmarshal(body, &index); err != nil {
-		log.Fatalf("Erreur de parsing YAML : %v", err)
+		logrus.Fatalf("Erreur de parsing YAML : %v", err)
 	}
 
-	Cache.Store(registry, index)
+	Cache.Store(registry, &index)
 
 	time.AfterFunc(300*time.Second, func() { StoreDeleteRegistry(registry) })
 
-	return index, nil
+	return &index, nil
 }
 
 func StoreDeleteRegistry(registry string) {
@@ -85,12 +90,9 @@ func GetTags(registry, chart string) []string {
 	return tags
 }
 
-func GetGreaterTags(registry, chart string, minVersion semver.Version) []string {
+func GetGreaterTags(index *IndexFile, registry, chart string, minVersion semver.Version) []string {
 	tags := []string{}
-	index, err := StoreGet(registry)
-	if err != nil {
-		return tags
-	}
+
 	if entry, ok := index.Entries[chart]; ok {
 		for _, version := range entry {
 			candidateVersion, _ := semver.Parse(version.Version)

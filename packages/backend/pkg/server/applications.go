@@ -1,10 +1,10 @@
 package server
 
 import (
-	"argocd-watcher/pkg/argocd/application"
-	"argocd-watcher/pkg/parser"
+	"argocd-watcher/pkg/application"
 	"net/http"
 
+	"github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 	"github.com/gin-gonic/gin"
 )
 
@@ -12,75 +12,79 @@ import (
 // @Description Retourne la liste des applications et le rapport des versions
 // @Tags Applications
 // @Produce json
-// @Success 200 {object} map[string]parser.ApplicationSummary
+// @Success 200 {array} application.ApplicationSummary
 // @Param filter query string false "Filtre les applications"
 // @Router /api/v1/apps [get]
 func fetchApplications(c *gin.Context) {
-	filter := c.DefaultQuery("filter", "standard")
-	// Liste des applications ArgoCD
-	applications, err := application.StoreList()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
+	filter := c.DefaultQuery("filter", "")
 
-	// Créer une liste simplifiée des applications
-	result := map[string]parser.ApplicationSummary{}
-	appList := applications
-	for _, app := range appList {
-		appSummary := parser.ParseApplication(app)
+	summaries := []application.ApplicationSummary{}
+	application.AppCache.Range(func(key, value any) bool {
+		summary := application.GenerateApplicationSummary(value.(*v1alpha1.Application))
 		switch filter {
-		case "standard":
-			if len(appSummary.Charts) != 0 {
-				result[app.Name] = appSummary
-			}
-		case "outdated":
-			if appSummary.Status == "Outdated" {
-				result[app.Name] = appSummary
-			}
 		case "all":
-			result[app.Name] = appSummary
+			summaries = append(summaries, summary)
+		case "outdated":
+			if summary.Status == "Outdated" {
+				summaries = append(summaries, summary)
+			}
+		default:
+			if len(summary.Charts) > 0 {
+				summaries = append(summaries, summary)
+			}
 		}
-	}
 
-	c.JSON(http.StatusOK, result)
+		return true
+	})
+
+	c.JSON(http.StatusOK, summaries)
 }
 
 // @Summary Récupe une application
 // @Description Retourne application et le rapport de versions
 // @Tags Applications
 // @Produce json
-// @Success 200 {object} parser.ApplicationSummary
-// @Param application path string true "Application cible"
-// @Router /api/v1/apps/{application} [get]
+// @Success 200 {object} application.ApplicationSummary
+// @Param name path string true "Application cible"
+// @Param namespace path string true "Namespace cible"
+// @Router /api/v1/apps/{namespace}/{name} [get]
 func fetchApplication(c *gin.Context) {
-	name := c.Param("application")
-	// Liste des applications ArgoCD
-	application, err := application.StoreGet(name)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+	name := c.Param("name")
+	namespace := c.Param("namespace")
+	key := namespace + "/" + name
+
+	app, ok := application.AppCache.Load(key)
+	if !ok {
+		c.AbortWithStatus(404)
 	}
+	summary := application.GenerateApplicationSummary(app.(*v1alpha1.Application))
 
-	appSummary := parser.ParseApplication(application)
-
-	c.JSON(http.StatusOK, appSummary)
+	c.JSON(http.StatusOK, summary)
 }
 
 // @Summary Remonte l'origine d'une application
 // @Description Liste les applications et applications qui ménent à cette application
 // @Tags Track Origin
 // @Produce json
-// @Success 200 {array} application.TrackRecord
+// @Success 200 {array} application.GenealogyItem
 // @Failure 400 {object} error
-// @Param application path string true "Application cible"
-// @Router /api/v1/apps/{application}/origin [get]
+// @Param name path string true "Application cible"
+// @Param namespace path string true "Namespace cible"
+// @Router /api/v1/apps/{namespace}/{name}/origin [get]
 func getApplicationOrigin(c *gin.Context) {
-	name := c.Param("application")
+	name := c.Param("name")
+	namespace := c.Param("namespace")
+	key := namespace + "/" + name
+
 	if name == "" {
 		c.Abort()
 	}
-	appTrack := application.GetApplicationTrack(name)
+	item, ok := application.AppCache.Load(key)
+	if !ok {
+		c.AbortWithStatus(404)
+		return
+	}
+	appTrack := application.GetApplicationTrack(item.(*v1alpha1.Application))
 
 	c.JSON(http.StatusOK, appTrack)
 }

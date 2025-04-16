@@ -1,34 +1,30 @@
 basePath: /
 definitions:
-  application.TrackRecord:
+  application.ApplicationSummary:
     properties:
       applicationUrl:
         type: string
-      kind:
+      charts:
+        items:
+          $ref: '#/definitions/application.ChartSummary'
+        type: array
+      instance:
         type: string
       name:
         type: string
-    required:
-    - applicationUrl
-    - kind
-    - name
-    type: object
-  parser.ApplicationSummary:
-    properties:
-      charts:
-        items:
-          $ref: '#/definitions/parser.Source'
-        type: array
-      instance:
+      namespace:
         type: string
       status:
         type: string
     required:
+    - applicationUrl
     - charts
     - instance
+    - name
+    - namespace
     - status
     type: object
-  parser.Source:
+  application.ChartSummary:
     properties:
       chart:
         type: string
@@ -46,6 +42,23 @@ definitions:
         type: string
     required:
     - chart
+    type: object
+  application.GenealogyItem:
+    properties:
+      applicationUrl:
+        type: string
+      errorMessage:
+        type: string
+      kind:
+        type: string
+      name:
+        type: string
+      namespace:
+        type: string
+    required:
+    - kind
+    - name
+    - namespace
     type: object
   server.Check:
     properties:
@@ -76,19 +89,24 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties:
-              $ref: '#/definitions/parser.ApplicationSummary'
-            type: object
+            items:
+              $ref: '#/definitions/application.ApplicationSummary'
+            type: array
       summary: Liste les applications
       tags:
       - Applications
-  /api/v1/apps/{application}:
+  /api/v1/apps/{namespace}/{name}:
     get:
       description: Retourne application et le rapport de versions
       parameters:
       - description: Application cible
         in: path
-        name: application
+        name: name
+        required: true
+        type: string
+      - description: Namespace cible
+        in: path
+        name: namespace
         required: true
         type: string
       produces:
@@ -97,17 +115,22 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/parser.ApplicationSummary'
+            $ref: '#/definitions/application.ApplicationSummary'
       summary: Récupe une application
       tags:
       - Applications
-  /api/v1/apps/{application}/origin:
+  /api/v1/apps/{namespace}/{name}/origin:
     get:
       description: Liste les applications et applications qui ménent à cette application
       parameters:
       - description: Application cible
         in: path
-        name: application
+        name: name
+        required: true
+        type: string
+      - description: Namespace cible
+        in: path
+        name: namespace
         required: true
         type: string
       produces:
@@ -117,7 +140,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/application.TrackRecord'
+              $ref: '#/definitions/application.GenealogyItem'
             type: array
         "400":
           description: Bad Request

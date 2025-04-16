@@ -26,11 +26,12 @@ export const routes: Readonly<RouteRecordRaw[]> = [
                 component: Home,
             },
             {
-                path: 'application/:name',
+                path: 'application/:namespace/:name',
                 name: 'Application',
                 props(to) {
                     return {
-                        name: to.params.name
+                        name: to.params.name,
+                        namespace: to.params.namespace
                     }
                 },
                 component: ApplicationDetails,

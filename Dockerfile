@@ -8,6 +8,7 @@ RUN go install github.com/swaggo/swag/cmd/swag@latest
 COPY ./packages/backend/ ./
 
 RUN swag init
+RUN go build -o app .
 
 FROM node:22-alpine AS frontend-builder
 
@@ -21,17 +22,16 @@ RUN npm run swag
 RUN ls src
 RUN npm run build
 
-FROM golang:1.24-alpine
+FROM golang:1.24.2-alpine
 
 WORKDIR /app
 COPY packages/backend/go.* ./
-RUN go mod download
 
-COPY ./packages/backend/ ./
 COPY --from=frontend-builder /app/frontend/dist ./static
+COPY --from=api-generator /app/app ./
+COPY --from=api-generator /app/docs ./docs
 
-RUN go build -o main .
-
+ARG ARCH=
 EXPOSE 8080
 
-CMD ["./main"]
+CMD ["./app"]

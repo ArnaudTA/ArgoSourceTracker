@@ -9,13 +9,16 @@ import (
 )
 
 type ServerConfig struct {
-	Port    int    `json:"port" env:"SERVER_PORT" default:"8080" flag:"server.port"`
-	Address string `json:"address" env:"SERVER_ADDR" default:"0.0.0.0" flag:"server.addr"`
+	Address     string `json:"address" env:"SERVER_ADDR" default:"0.0.0.0" flag:"server.addr"`
+	Port        int    `json:"port" env:"SERVER_PORT" default:"8080" flag:"server.port"`
+	MetricsPort int    `json:"metricsPort" env:"SERVER_METRICSPORT" default:"8081" flag:"server.metrics-port"`
 }
 
 type ArgocdConfig struct {
-	Namespace string `json:"ns" env:"ARGOCD_NS" default:"argocd" flag:"argocd.ns"`
-	Url       string `json:"address" env:"ARGOCD_URL" default:"" flag:"argocd.url"`
+	Namespace        string `json:"ns" env:"ARGOCD_NS" default:"" flag:"argocd.ns"`
+	Url              string `json:"address" env:"ARGOCD_URL" default:"" flag:"argocd.url"`
+	Instance         string `json:"instance" env:"ARGOCD_INSTANCE" default:"argo-cd" flag:"argocd.instance"`
+	InstanceLabelKey string `json:"instanceLabelKey"`
 }
 
 type Config struct {

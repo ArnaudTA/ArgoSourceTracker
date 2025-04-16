@@ -10,25 +10,30 @@
  * ---------------------------------------------------------------
  */
 
-export interface ApplicationTrackRecord {
+export interface ApplicationApplicationSummary {
   applicationUrl: string;
-  kind: string;
-  name: string;
-}
-
-export interface ParserApplicationSummary {
-  charts: ParserSource[];
+  charts: ApplicationChartSummary[];
   instance: string;
+  name: string;
+  namespace: string;
   status: string;
 }
 
-export interface ParserSource {
+export interface ApplicationChartSummary {
   chart: string;
   newTags?: string[];
   repoURL?: string;
   revision?: string;
   status?: string;
   type?: string;
+}
+
+export interface ApplicationGenealogyItem {
+  applicationUrl?: string;
+  errorMessage?: string;
+  kind: string;
+  name: string;
+  namespace: string;
 }
 
 export interface ServerCheck {
@@ -236,7 +241,7 @@ export class Api<
       },
       params: RequestParams = {},
     ) =>
-      this.request<Record<string, ParserApplicationSummary>, any>({
+      this.request<ApplicationApplicationSummary[], any>({
         path: `/api/v1/apps`,
         method: "GET",
         query: query,
@@ -250,11 +255,15 @@ export class Api<
      * @tags Applications
      * @name V1AppsDetail
      * @summary Récupe une application
-     * @request GET:/api/v1/apps/{application}
+     * @request GET:/api/v1/apps/{namespace}/{name}
      */
-    v1AppsDetail: (application: string, params: RequestParams = {}) =>
-      this.request<ParserApplicationSummary, any>({
-        path: `/api/v1/apps/${application}`,
+    v1AppsDetail: (
+      name: string,
+      namespace: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<ApplicationApplicationSummary, any>({
+        path: `/api/v1/apps/${namespace}/${name}`,
         method: "GET",
         format: "json",
         ...params,
@@ -266,11 +275,15 @@ export class Api<
      * @tags Track Origin
      * @name V1AppsOriginList
      * @summary Remonte l'origine d'une application
-     * @request GET:/api/v1/apps/{application}/origin
+     * @request GET:/api/v1/apps/{namespace}/{name}/origin
      */
-    v1AppsOriginList: (application: string, params: RequestParams = {}) =>
-      this.request<ApplicationTrackRecord[], any>({
-        path: `/api/v1/apps/${application}/origin`,
+    v1AppsOriginList: (
+      name: string,
+      namespace: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<ApplicationGenealogyItem[], any>({
+        path: `/api/v1/apps/${namespace}/${name}/origin`,
         method: "GET",
         format: "json",
         ...params,

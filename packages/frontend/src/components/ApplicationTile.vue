@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import type { ParserApplicationSummary } from '../api/Api';
+import type { ApplicationApplicationSummary } from '../api/Api';
 import router from '../router';
 defineProps<{
-    name: string,
-    application: ParserApplicationSummary
+    application: ApplicationApplicationSummary
 }>()
 </script>
 
@@ -11,10 +10,11 @@ defineProps<{
     <div class="tile" @click="router.push({
         name: 'Application',
         params: {
-            name: name
+            name: application.name,
+            namespace: application.namespace
         }
     })">
-        <h4>{{ name }}</h4>
+        <h4>{{ application.namespace +"/"+ application.name }}</h4>
     </div>
 </template>
 

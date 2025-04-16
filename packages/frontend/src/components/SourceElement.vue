@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import type { ParserSource } from '../api/Api';
-import GenericTile from './GenericTile.vue';
+import type { ApplicationChartSummary } from '../api/Api';
+import GenericTile, { TileStatus } from './GenericTile.vue';
 
-defineProps<ParserSource>()
+defineProps<ApplicationChartSummary>()
 
 const expanded = ref<boolean>(false)
 </script>
 
 <template>
-    <GenericTile :title="chart">
+    <GenericTile :title="chart" :status="(status as TileStatus)">
         <div>
             <div>
                 repo: {{ repoURL || '-' }}</div>

@@ -1,23 +1,21 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { type ParserApplicationSummary } from '../api/Api'
 import { client } from '../utils/client'
 
-const health = ref<string>('Checking...')
+const CHECKING_TEXT = 'Checking...'
+const health = ref(CHECKING_TEXT)
 
-const applications = ref<Record<string, ParserApplicationSummary>>({})
-
+async function checkHealth() {
+    health.value = CHECKING_TEXT
+    health.value = await client.api.v1HealthList()
+        .then(res => res.data.status)
+        .catch(_ => "Can't reach")
+        .finally(() => setTimeout(() => {
+            checkHealth()
+        }, 20000))
+}
 onMounted(async () => {
-    try {
-        health.value = await client.api.v1HealthList()
-            .then(res => res.data.status)
-            .catch(_ => "Can't reach")
-        if (health.value == "ok") {
-            applications.value = (await client.api.v1AppsList()).data
-        }
-    } catch (error) {
-        console.error('Error fetching health status:', error)
-    }
+    checkHealth()
 })
 </script>
 
@@ -29,7 +27,6 @@ onMounted(async () => {
 
 <style scoped>
 #footer {
-    padding: 1rem;
     height: auto;
 }
 

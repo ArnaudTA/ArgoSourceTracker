@@ -37,16 +37,16 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "$ref": "#/definitions/parser.ApplicationSummary"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/application.ApplicationSummary"
                             }
                         }
                     }
                 }
             }
         },
-        "/api/v1/apps/{application}": {
+        "/api/v1/apps/{namespace}/{name}": {
             "get": {
                 "description": "Retourne application et le rapport de versions",
                 "produces": [
@@ -60,7 +60,14 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Application cible",
-                        "name": "application",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Namespace cible",
+                        "name": "namespace",
                         "in": "path",
                         "required": true
                     }
@@ -69,13 +76,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/parser.ApplicationSummary"
+                            "$ref": "#/definitions/application.ApplicationSummary"
                         }
                     }
                 }
             }
         },
-        "/api/v1/apps/{application}/origin": {
+        "/api/v1/apps/{namespace}/{name}/origin": {
             "get": {
                 "description": "Liste les applications et applications qui ménent à cette application",
                 "produces": [
@@ -89,7 +96,14 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Application cible",
-                        "name": "application",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Namespace cible",
+                        "name": "namespace",
                         "in": "path",
                         "required": true
                     }
@@ -100,7 +114,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/application.TrackRecord"
+                                "$ref": "#/definitions/application.GenealogyItem"
                             }
                         }
                     },
@@ -133,40 +147,33 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "application.TrackRecord": {
+        "application.ApplicationSummary": {
             "type": "object",
             "required": [
                 "applicationUrl",
-                "kind",
-                "name"
+                "charts",
+                "instance",
+                "name",
+                "namespace",
+                "status"
             ],
             "properties": {
                 "applicationUrl": {
                     "type": "string"
                 },
-                "kind": {
+                "charts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/application.ChartSummary"
+                    }
+                },
+                "instance": {
                     "type": "string"
                 },
                 "name": {
                     "type": "string"
-                }
-            }
-        },
-        "parser.ApplicationSummary": {
-            "type": "object",
-            "required": [
-                "charts",
-                "instance",
-                "status"
-            ],
-            "properties": {
-                "charts": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/parser.Source"
-                    }
                 },
-                "instance": {
+                "namespace": {
                     "type": "string"
                 },
                 "status": {
@@ -174,7 +181,7 @@ const docTemplate = `{
                 }
             }
         },
-        "parser.Source": {
+        "application.ChartSummary": {
             "type": "object",
             "required": [
                 "chart"
@@ -199,6 +206,31 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "application.GenealogyItem": {
+            "type": "object",
+            "required": [
+                "kind",
+                "name",
+                "namespace"
+            ],
+            "properties": {
+                "applicationUrl": {
+                    "type": "string"
+                },
+                "errorMessage": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "namespace": {
                     "type": "string"
                 }
             }

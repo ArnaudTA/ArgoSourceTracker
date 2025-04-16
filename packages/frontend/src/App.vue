@@ -7,14 +7,17 @@ import Header from './components/Header.vue';
 <template>
   <div class="app">
     <Header />
-    <router-view />
+    <div id="content">
+      <router-view />
+
+    </div>
     <div id="separator"></div>
     <Footer />
 
   </div>
 </template>
 
-<style>
+<style scoped>
 .app {
   margin: 0 0;
   padding: 0rem;
@@ -24,5 +27,8 @@ import Header from './components/Header.vue';
 }
 #separator {
   flex: 1;
+}
+#content{
+  padding: 2rem 2rem;
 }
 </style>

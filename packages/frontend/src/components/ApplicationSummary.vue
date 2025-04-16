@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import type { ParserApplicationSummary } from '../api/Api'
+import type { ApplicationApplicationSummary } from '../api/Api'
 import SourceElement from './SourceElement.vue';
+import UrlIcon from './UrlIcon.vue';
 
 // Props
 defineProps<{
-    summary: ParserApplicationSummary
+    summary: ApplicationApplicationSummary
     name: string
+    namespace: string
 }>()
 
 // Badge class utilitaire
@@ -26,7 +28,10 @@ const statusBadge = (status?: string) => {
         <div class="bg-white shadow-md rounded-2xl p-6 border border-gray-200">
             <div class="flex justify-between items-center mb-4">
                 <div>
-                    <h2 class="text-xl font-semibold text-gray-800">{{ summary.instance }}</h2>
+                    <div>
+                        <h2 style="display: inline;">{{ name }}</h2>
+                        <UrlIcon style="display: inline; margin-left: 1rem;" :applicationUrl="summary.applicationUrl"></UrlIcon>
+                    </div>
                     <p class="text-sm text-gray-500">Status:
                         <span :class="statusBadge(summary.status)">
                             {{ summary.status }}
@@ -37,6 +42,7 @@ const statusBadge = (status?: string) => {
         </div>
     </div>
     <h3>Charts</h3>
+    <p v-if="summary.charts.length === 0">No Charts found</p>
     <SourceElement v-for="(chart, index) in summary.charts" :key="index" class="border-b hover:bg-gray-50"
         v-bind="chart" />
 </template>

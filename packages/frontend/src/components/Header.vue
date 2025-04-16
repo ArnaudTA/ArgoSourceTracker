@@ -15,7 +15,6 @@ import router from '../router';
 
 <style>
 #header {
-    padding: 1rem;
     height: auto;
 }
 

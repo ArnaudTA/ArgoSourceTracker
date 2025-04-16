@@ -11,4 +11,5 @@ body {
 .menu {
     background-color: var(--menu-bg-color);
     color: var(--menu-text-color);
+    padding: 1rem 2rem;
 }
