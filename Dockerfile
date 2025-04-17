@@ -1,4 +1,4 @@
-FROM golang:1.24-alpine AS api-generator
+FROM golang:1.24-alpine AS backend-builder
 
 WORKDIR /app
 COPY packages/backend/go.* ./
@@ -16,7 +16,7 @@ WORKDIR /app/frontend
 
 COPY ./packages/frontend/package*.json ./
 RUN npm install
-COPY --from=api-generator /app/docs ./docs
+COPY --from=backend-builder /app/docs ./docs
 COPY ./packages/frontend/ ./
 RUN npm run swag
 RUN ls src
@@ -28,8 +28,8 @@ WORKDIR /app
 COPY packages/backend/go.* ./
 
 COPY --from=frontend-builder /app/frontend/dist ./static
-COPY --from=api-generator /app/app ./
-COPY --from=api-generator /app/docs ./docs
+COPY --from=backend-builder /app/app ./
+COPY --from=backend-builder /app/docs ./docs
 
 ARG ARCH=
 EXPOSE 8080

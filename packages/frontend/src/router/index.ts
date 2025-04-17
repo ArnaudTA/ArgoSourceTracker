@@ -8,6 +8,7 @@ import type {
 
 
 const Home = () => import('../views/Home.vue')
+const Docs = () => import('../views/Docs.vue')
 const HomeSideMenu = () => import('../views/SideMenu/Home.vue')
 const NotFound = () => import('../views/NotFound.vue')
 const ApplicationDetails = () => import('../views/ApplicationDetails.vue')
@@ -39,6 +40,11 @@ export const routes: Readonly<RouteRecordRaw[]> = [
                     }
                 },
                 component: ApplicationDetails,
+            },
+            {
+                path: 'docs',
+                name: 'Docs',
+                component: Docs,
             },
         ]
     },

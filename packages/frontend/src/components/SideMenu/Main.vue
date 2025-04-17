@@ -30,7 +30,7 @@ onMounted(async () => {
             Api status: {{ sideMenuStore.health }}
         </GenericDrawer>
         <GenericDrawer>
-            <Button as="a" href="/swagger/index.html">Documentation</Button>
+            <Button as="a" href="/ui/docs">Documentation</Button>
         </GenericDrawer>
     </div>
 </template>
