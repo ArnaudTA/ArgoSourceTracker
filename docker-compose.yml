@@ -3,13 +3,13 @@ services:
     build:
       context: ./packages/frontend
       dockerfile: Dockerfile
-    image: ghcr.io/arnaudta/argosourcetracker-front:dev
+    image: ghcr.io/cableship/argocd-source-tracker-front:dev
     ports:
       - "3000:3000"
     volumes:
       - ./packages/frontend:/app
       - ./packages/backend/docs:/app/docs
-      - /app/node_modules
+      - /app/packages/frontend/node_modules
     depends_on:
       - api
 
@@ -17,7 +17,7 @@ services:
     build:
       context: ./packages/backend
       dockerfile: Dockerfile
-    image: ghcr.io/arnaudta/argosourcetracker-back:dev
+    image: ghcr.io/cableship/argocd-source-tracker-back:dev
     env_file:
       - .env
     environment:

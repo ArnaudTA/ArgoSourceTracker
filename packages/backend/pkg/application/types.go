@@ -12,12 +12,12 @@ type ChartSummary struct {
 }
 
 type ApplicationSummary struct {
-	Name      string         `json:"name" binding:"required"`
-	Namespace string         `json:"namespace" binding:"required"`
-	Charts    []ChartSummary `json:"charts" binding:"required"`
-	Status    string         `json:"status" binding:"required"`
-	Instance  string         `json:"instance,omitempty" binding:"required"`
-	ApplicationUrl string `json:"applicationUrl" binding:"required"`
+	Name           string            `json:"name" binding:"required"`
+	Namespace      string            `json:"namespace" binding:"required"`
+	Charts         []ChartSummary    `json:"charts" binding:"required"`
+	Status         ApplicationStatus `json:"status" binding:"required"`
+	Instance       string            `json:"instance,omitempty" binding:"required"`
+	ApplicationUrl string            `json:"applicationUrl" binding:"required"`
 }
 
 type ApplicationSourceWithRevision struct {
@@ -28,7 +28,18 @@ type ApplicationSourceWithRevision struct {
 type GenealogyItem struct {
 	Kind           string `json:"kind" binding:"required"`
 	Name           string `json:"name" binding:"required"`
-	Namespace           string `json:"namespace" binding:"required"`
+	Namespace      string `json:"namespace" binding:"required"`
 	ApplicationUrl string `json:"applicationUrl,omitempty"`
 	ErrorMessage   string `json:"errorMessage,omitempty"`
 }
+
+type ApplicationStatus string
+
+const (
+	UpToDate ApplicationStatus = "Up-to-date"
+	Unknown  ApplicationStatus = "Unknown"
+	Outdated ApplicationStatus = "Outdated"
+	Ignored  ApplicationStatus = "Ignored"
+	Checking ApplicationStatus = "Checking"
+	Error    ApplicationStatus = "Error"
+)

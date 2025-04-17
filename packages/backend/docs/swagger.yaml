@@ -1,5 +1,21 @@
 basePath: /
 definitions:
+  application.ApplicationStatus:
+    enum:
+    - Up-to-date
+    - Unknown
+    - Outdated
+    - Ignored
+    - Checking
+    - Error
+    type: string
+    x-enum-varnames:
+    - UpToDate
+    - Unknown
+    - Outdated
+    - Ignored
+    - Checking
+    - Error
   application.ApplicationSummary:
     properties:
       applicationUrl:
@@ -15,7 +31,7 @@ definitions:
       namespace:
         type: string
       status:
-        type: string
+        $ref: '#/definitions/application.ApplicationStatus'
     required:
     - applicationUrl
     - charts
@@ -67,7 +83,6 @@ definitions:
     required:
     - status
     type: object
-host: localhost:8080
 info:
   contact: {}
   description: API simple pour lister les applications ArgoCD et suivre les versions
@@ -79,6 +94,10 @@ paths:
     get:
       description: Retourne la liste des applications et le rapport des versions
       parameters:
+      - description: Name to search
+        in: query
+        name: name
+        type: string
       - description: Filtre les applications
         in: query
         name: filter

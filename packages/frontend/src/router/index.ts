@@ -8,6 +8,7 @@ import type {
 
 
 const Home = () => import('../views/Home.vue')
+const HomeSideMenu = () => import('../views/SideMenu/Home.vue')
 const NotFound = () => import('../views/NotFound.vue')
 const ApplicationDetails = () => import('../views/ApplicationDetails.vue')
 
@@ -23,7 +24,10 @@ export const routes: Readonly<RouteRecordRaw[]> = [
             {
                 path: '',
                 name: 'Home',
-                component: Home,
+                components: {
+                    default: Home,
+                    menu: HomeSideMenu,
+                },
             },
             {
                 path: 'application/:namespace/:name',

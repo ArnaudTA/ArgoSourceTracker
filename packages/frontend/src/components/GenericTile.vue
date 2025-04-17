@@ -1,22 +1,15 @@
 <script setup lang="ts">
+import { ApplicationApplicationStatus } from '../api/Api';
+import { statusClass } from '../utils/client';
 
-export type TileStatus = 'Up-to-date' | 'Ignored' | 'Outdated' | 'Checking' | 'Unknown' | 'Error' | 'None'
+
 withDefaults(defineProps<{
     title?: string
-    status: TileStatus
+    status: ApplicationApplicationStatus | 'None'
 }>(), {
     status: 'None'
 })
 
-const statusClass: Record<TileStatus, string> = {
-    "Up-to-date": "uptodate",
-    Checking: "checking",
-    Error: "error",
-    Ignored: "ignored",
-    Unknown: "unknown",
-    Outdated: "outdated",
-    None: "none"
-}
 </script>
 
 <template>

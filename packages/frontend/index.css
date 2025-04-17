@@ -11,5 +11,13 @@ body {
 .menu {
     background-color: var(--menu-bg-color);
     color: var(--menu-text-color);
-    padding: 1rem 2rem;
+}
+
+#app {
+    min-height: 100vh;
+    margin: 0 0;
+    padding: 0rem;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: row;
 }

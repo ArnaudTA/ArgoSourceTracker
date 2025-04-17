@@ -21,16 +21,16 @@ func ParseApplication(app *v1alpha1.Application) {
 	}
 }
 
-func getApplicationStatus(charts []ChartSummary) string {
+func getApplicationStatus(charts []ChartSummary) ApplicationStatus {
 	if len(charts) == 0 {
-		return "Ignored"
+		return ApplicationStatus(Ignored)
 	}
 	for _, chart := range charts {
 		if chart.Status == "Outdated" {
-			return "Outdated"
+			return ApplicationStatus(Outdated)
 		}
 	}
-	return "Up-to-date"
+	return ApplicationStatus(UpToDate)
 }
 
 func GenerateApplicationSummary(app *v1alpha1.Application) ApplicationSummary {

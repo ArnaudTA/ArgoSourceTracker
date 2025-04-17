@@ -13,7 +13,11 @@ export default defineConfig({
       },
       '/metrics': {
         target: 'http://api:8081/',
+      },
+      '/swagger': {
+        target: 'http://api:8080/',
       }
     }
-  }
+  },
+  
 })

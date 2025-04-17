@@ -10,13 +10,22 @@
  * ---------------------------------------------------------------
  */
 
+export enum ApplicationApplicationStatus {
+  UpToDate = "Up-to-date",
+  Unknown = "Unknown",
+  Outdated = "Outdated",
+  Ignored = "Ignored",
+  Checking = "Checking",
+  Error = "Error",
+}
+
 export interface ApplicationApplicationSummary {
   applicationUrl: string;
   charts: ApplicationChartSummary[];
   instance: string;
   name: string;
   namespace: string;
-  status: string;
+  status: ApplicationApplicationStatus;
 }
 
 export interface ApplicationChartSummary {
@@ -103,7 +112,7 @@ export class HttpClient<SecurityDataType = unknown> {
   }: ApiConfig<SecurityDataType> = {}) {
     this.instance = axios.create({
       ...axiosConfig,
-      baseURL: axiosConfig.baseURL || "//localhost:8080",
+      baseURL: axiosConfig.baseURL || "/",
     });
     this.secure = secure;
     this.format = format;
@@ -217,7 +226,7 @@ export class HttpClient<SecurityDataType = unknown> {
 /**
  * @title ArgoSourceTracker API
  * @version 1.0
- * @baseUrl //localhost:8080
+ * @baseUrl /
  * @contact
  *
  * API simple pour lister les applications ArgoCD et suivre les versions des charts
@@ -236,6 +245,8 @@ export class Api<
      */
     v1AppsList: (
       query?: {
+        /** Name to search */
+        name?: string;
         /** Filtre les applications */
         filter?: string;
       },

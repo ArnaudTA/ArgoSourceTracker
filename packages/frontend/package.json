@@ -11,7 +11,10 @@
     "swag-external": "swagger-typescript-api generate -p ../backend/docs/swagger.yaml -o ./src/api --axios"
   },
   "dependencies": {
+    "@primeuix/themes": "^1.0.3",
     "axios": "^1.6.7",
+    "pinia": "^3.0.2",
+    "primevue": "^4.3.3",
     "vue": "^3.4.15",
     "vue-router": "^4.5.0"
   },

@@ -2,7 +2,9 @@ package server
 
 import (
 	"argocd-watcher/pkg/application"
+	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 	"github.com/gin-gonic/gin"
@@ -13,19 +15,25 @@ import (
 // @Tags Applications
 // @Produce json
 // @Success 200 {array} application.ApplicationSummary
+// @Param name query string false "Name to search"
 // @Param filter query string false "Filtre les applications"
 // @Router /api/v1/apps [get]
 func fetchApplications(c *gin.Context) {
-	filter := c.DefaultQuery("filter", "")
+	filterQuery := c.DefaultQuery("filter", "")
+	nameQuery := c.DefaultQuery("name", "")
 
 	summaries := []application.ApplicationSummary{}
 	application.AppCache.Range(func(key, value any) bool {
+		name := fmt.Sprint(key)
+		if nameQuery != "" && !strings.Contains(name, nameQuery) {
+			return true
+		}
 		summary := application.GenerateApplicationSummary(value.(*v1alpha1.Application))
-		switch filter {
+		switch filterQuery {
 		case "all":
 			summaries = append(summaries, summary)
 		case "outdated":
-			if summary.Status == "Outdated" {
+			if summary.Status == application.Outdated {
 				summaries = append(summaries, summary)
 			}
 		default:

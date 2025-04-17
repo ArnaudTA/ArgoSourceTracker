@@ -28,6 +28,12 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "description": "Name to search",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
                         "description": "Filtre les applications",
                         "name": "filter",
                         "in": "query"
@@ -147,6 +153,25 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "application.ApplicationStatus": {
+            "type": "string",
+            "enum": [
+                "Up-to-date",
+                "Unknown",
+                "Outdated",
+                "Ignored",
+                "Checking",
+                "Error"
+            ],
+            "x-enum-varnames": [
+                "UpToDate",
+                "Unknown",
+                "Outdated",
+                "Ignored",
+                "Checking",
+                "Error"
+            ]
+        },
         "application.ApplicationSummary": {
             "type": "object",
             "required": [
@@ -177,7 +202,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "status": {
-                    "type": "string"
+                    "$ref": "#/definitions/application.ApplicationStatus"
                 }
             }
         },
@@ -252,7 +277,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8080",
+	Host:             "",
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "ArgoSourceTracker API",

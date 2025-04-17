@@ -6,7 +6,6 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "localhost:8080",
     "basePath": "/",
     "paths": {
         "/api/v1/apps": {
@@ -20,6 +19,12 @@
                 ],
                 "summary": "Liste les applications",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name to search",
+                        "name": "name",
+                        "in": "query"
+                    },
                     {
                         "type": "string",
                         "description": "Filtre les applications",
@@ -141,6 +146,25 @@
         }
     },
     "definitions": {
+        "application.ApplicationStatus": {
+            "type": "string",
+            "enum": [
+                "Up-to-date",
+                "Unknown",
+                "Outdated",
+                "Ignored",
+                "Checking",
+                "Error"
+            ],
+            "x-enum-varnames": [
+                "UpToDate",
+                "Unknown",
+                "Outdated",
+                "Ignored",
+                "Checking",
+                "Error"
+            ]
+        },
         "application.ApplicationSummary": {
             "type": "object",
             "required": [
@@ -171,7 +195,7 @@
                     "type": "string"
                 },
                 "status": {
-                    "type": "string"
+                    "$ref": "#/definitions/application.ApplicationStatus"
                 }
             }
         },
