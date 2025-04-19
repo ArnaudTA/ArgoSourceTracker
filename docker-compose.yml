@@ -26,3 +26,13 @@ services:
     volumes:
       - ${KUBECONFIG_DIR:-~/.kube/}:/root/.kube/:ro
       - ./packages/backend:/app
+
+  redis:
+    image: public.ecr.aws/docker/library/redis:7.4.2-alpine
+
+  redis-ui:
+    image: redis/redisinsight:latest
+    ports:
+    - 5540:5540
+    volumes:
+      - /data

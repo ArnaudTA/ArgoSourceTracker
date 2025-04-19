@@ -1,0 +1,45 @@
+package cache
+
+import (
+	"context"
+	"time"
+
+	"github.com/redis/go-redis/v9"
+)
+
+var ctx = context.Background()
+
+var rdbClient *redis.Client
+
+func GetClient() *redis.Client {
+	if rdbClient == nil {
+		rdbClient = redis.NewClient(&redis.Options{
+			Addr:     "redis:6379",
+			Password: "", // no password set
+			DB:       0,  // use default DB
+
+		})
+	}
+	return rdbClient
+}
+func Store(key string, value []byte, ttl time.Duration) {
+	if ttl == 0 {
+		ttl = 5 * time.Minute
+	}
+	client := GetClient()
+
+	client.Set(ctx, key, value, ttl)
+}
+
+func Load(key string) ([]byte, error) {
+	client := GetClient()
+
+	return client.Get(ctx, key).Bytes()
+
+}
+
+func Delete(key string) {
+	client := GetClient()
+
+	client.Del(ctx, key)
+}
