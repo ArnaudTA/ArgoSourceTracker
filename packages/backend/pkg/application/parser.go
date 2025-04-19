@@ -17,7 +17,14 @@ var InstanceLabel string = "argocd.argoproj.io/instance"
 func ParseApplication(app *v1alpha1.Application) {
 	sources := ExtractSources(app)
 	for _, source := range sources {
-		registries.StoreGet(source.RepoURL)
+		if source.RepoURL == "" {
+			continue
+		}
+		registries.Search(source.RepoURL)
+		if source.Chart == "" {
+			continue
+		}
+		artifacthub.CacheSource(source.RepoURL, source.Chart)
 	}
 }
 
