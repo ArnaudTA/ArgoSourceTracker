@@ -24,7 +24,6 @@ func ParseApplication(app *v1alpha1.Application) {
 		if source.Chart == "" {
 			continue
 		}
-		artifacthub.CacheSource(source.RepoURL, source.Chart)
 	}
 }
 
@@ -49,11 +48,11 @@ func GenerateApplicationSummary(app *v1alpha1.Application) ApplicationSummary {
 	instance := app.Labels[InstanceLabel]
 
 	return ApplicationSummary{
-		Charts:    charts,
-		Status:    getApplicationStatus(charts),
-		Instance:  instance,
-		Name:      app.Name,
-		Namespace: app.Namespace,
+		Charts:         charts,
+		Status:         getApplicationStatus(charts),
+		Instance:       instance,
+		Name:           app.Name,
+		Namespace:      app.Namespace,
 		ApplicationUrl: getApplicationUrl(app.Namespace, app.Name),
 	}
 }
@@ -61,7 +60,7 @@ func GenerateApplicationSummary(app *v1alpha1.Application) ApplicationSummary {
 func GenerateChartSummary(source ApplicationSourceWithRevision) ChartSummary {
 	version := semver.MustParse(source.revision)
 	status := "Unknown"
-	index, err := registries.StoreGet(source.RepoURL)
+	index, err := registries.Search(source.RepoURL)
 	newTags := []string{}
 	if err != nil {
 		status = err.Error()
@@ -177,7 +176,6 @@ func findParent(metadata *metav1.ObjectMeta) (*GenealogyItem, *metav1.ObjectMeta
 	}
 	return nil, nil
 }
-
 
 func getApplicationUrl(namespace, name string) string {
 	return fmt.Sprintf("%s/applications/%s/%s", config.Global.Argocd.Url, namespace, name)

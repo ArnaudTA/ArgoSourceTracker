@@ -21,10 +21,10 @@ services:
     env_file:
       - .env
     environment:
-      - KUBECONFIG=/root/.kube/${KUBECONFIG_FILE:-config}
+      - KUBECONFIG=/.kube/${KUBECONFIG_FILE:-config}
       - GO_ENV=development
     volumes:
-      - ${KUBECONFIG_DIR:-~/.kube/}:/root/.kube/:ro
+      - ${KUBECONFIG_DIR:-~/.kube/}:/.kube/:ro
       - ./packages/backend:/app
 
   redis:

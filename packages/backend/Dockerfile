@@ -6,10 +6,13 @@ WORKDIR /app
 RUN apk add --no-cache git && \
     go install github.com/air-verse/air@latest
 
-COPY go.* ./
+COPY --chown=1000:1000 go.* ./
 RUN go mod download
 
-COPY . .
+# ENV GOCACHE=/app/.cache
+RUN mkdir /.cache && chown -R 1000:1000 /.cache
+ENV USER=1000
+USER 1000
 
 EXPOSE 8080
 
