@@ -27,24 +27,27 @@ func Watch(appClient versioned.Interface) {
 		AddFunc: func(obj interface{}) {
 			resource := obj.(*v1alpha1.Application)
 			key := fmt.Sprintf("%s/%s", resource.Namespace, resource.Name)
-			app := Application{Resource: resource}
+			logrus.Debugf("[ADD] Application %s\n", key)
+
+			app := &Application{Resource: resource}
 			AppCache.Store(key, app)
 			go app.Parse()
-			logrus.Debugf("[ADD] Application %s\n", key)
 		},
 		UpdateFunc: func(_, newObj interface{}) {
 			resource := newObj.(*v1alpha1.Application)
 			key := fmt.Sprintf("%s/%s", resource.Namespace, resource.Name)
-			app := Application{Resource: resource}
+			logrus.Debugf("[UPDATE] Application %s\n", key)
+
+			app := &Application{Resource: resource}
 			AppCache.Store(key, app)
 			go app.Parse()
-			logrus.Debugf("[UPDATE] Application %s\n", key)
 		},
 		DeleteFunc: func(obj interface{}) {
 			app := obj.(*v1alpha1.Application)
 			key := fmt.Sprintf("%s/%s", app.Namespace, app.Name)
-			AppCache.Delete(key)
 			logrus.Debugf("[DELETE] Application %s\n", key)
+
+			AppCache.Delete(key)
 		},
 	})
 

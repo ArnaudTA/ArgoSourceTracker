@@ -32,7 +32,7 @@ type ChartSummary struct {
 }
 
 type ApplicationSourceWithRevision struct {
-	v1alpha1.ApplicationSource
+	Source   v1alpha1.ApplicationSource
 	Revision string
 }
 

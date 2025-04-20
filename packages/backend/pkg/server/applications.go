@@ -1,7 +1,7 @@
 package server
 
 import (
-	"argocd-watcher/pkg/application"
+	"argocd-watcher/pkg/argocd/application"
 	"argocd-watcher/pkg/types"
 	"fmt"
 	"net/http"
@@ -18,7 +18,7 @@ import (
 // @Param name query string false "Name to search"
 // @Param filter query string false "Filtre les applications"
 // @Router /api/v1/apps [get]
-func fetchApplications(c *gin.Context) {
+func listApplications(c *gin.Context) {
 	filterQuery := c.DefaultQuery("filter", "")
 	nameQuery := c.DefaultQuery("name", "")
 
@@ -28,7 +28,7 @@ func fetchApplications(c *gin.Context) {
 		if nameQuery != "" && !strings.Contains(name, nameQuery) {
 			return true
 		}
-		app := value.(application.Application)
+		app := value.(*application.Application)
 		summary := app.GetSummary()
 		switch filterQuery {
 		case "all":
@@ -57,7 +57,7 @@ func fetchApplications(c *gin.Context) {
 // @Param name path string true "Application cible"
 // @Param namespace path string true "Namespace cible"
 // @Router /api/v1/apps/{namespace}/{name} [get]
-func fetchApplication(c *gin.Context) {
+func getApplication(c *gin.Context) {
 	name := c.Param("name")
 	namespace := c.Param("namespace")
 	key := namespace + "/" + name
@@ -66,7 +66,7 @@ func fetchApplication(c *gin.Context) {
 	if !ok {
 		c.AbortWithStatus(404)
 	}
-	app := result.(application.Application)
+	app := result.(*application.Application)
 	summary := app.GetSummary()
 
 	c.JSON(http.StatusOK, summary)
@@ -81,7 +81,7 @@ func fetchApplication(c *gin.Context) {
 // @Param name path string true "Application cible"
 // @Param namespace path string true "Namespace cible"
 // @Router /api/v1/apps/{namespace}/{name}/origin [get]
-func getApplicationOrigin(c *gin.Context) {
+func getApplicationGenealogy(c *gin.Context) {
 	name := c.Param("name")
 	namespace := c.Param("namespace")
 	key := namespace + "/" + name
@@ -94,7 +94,7 @@ func getApplicationOrigin(c *gin.Context) {
 		c.AbortWithStatus(404)
 		return
 	}
-	app := item.(application.Application)
+	app := item.(*application.Application)
 	appTrack := app.GetGenealogy()
 
 	c.JSON(http.StatusOK, appTrack)

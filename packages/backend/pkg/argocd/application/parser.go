@@ -1,41 +1,28 @@
 package application
 
 import (
-	// "argocd-watcher/pkg/applicationset"
-	"argocd-watcher/pkg/applicationset"
+	"argocd-watcher/pkg/argocd/applicationset"
 	"argocd-watcher/pkg/config"
 	"argocd-watcher/pkg/registries"
 	"argocd-watcher/pkg/types"
-	"fmt"
+
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 	"github.com/blang/semver/v4"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 var InstanceLabel string = "argocd.argoproj.io/instance"
 
-func getApplicationStatus(charts []types.ChartSummary) types.ApplicationStatus {
-	if len(charts) == 0 {
-		return types.Ignored
-	}
-	for _, chart := range charts {
-		if chart.Status == "Outdated" {
-			return types.Outdated
-		}
-	}
-	return types.UpToDate
-}
-
-func GenerateChartSummary(source types.ApplicationSourceWithRevision) types.ChartSummary {
+func GenerateChartSummary(source *types.ApplicationSourceWithRevision) types.ChartSummary {
 	version := semver.MustParse(source.Revision)
 	status := "Unknown"
-	index, err := registries.Search(source.RepoURL)
+	index, err := registries.Search(source.Source.RepoURL)
 	newTags := []string{}
 	if err != nil {
 		status = err.Error()
 	} else {
-		newTags = registries.GetGreaterTags(index, source.RepoURL, source.Chart, version)
+		newTags = registries.GetGreaterTags(index, source.Source.RepoURL, source.Source.Chart, version)
 		if len(newTags) > 0 {
 			status = "Outdated"
 		} else {
@@ -43,11 +30,11 @@ func GenerateChartSummary(source types.ApplicationSourceWithRevision) types.Char
 		}
 	}
 	return types.ChartSummary{
-		RepoURL:  source.RepoURL,
+		RepoURL:  source.Source.RepoURL,
 		Status:   status,
 		Revision: source.Revision,
 		NewTags:  newTags,
-		Chart:    source.Chart,
+		Chart:    source.Source.Chart,
 	}
 }
 
@@ -91,19 +78,15 @@ func findParent(metadata *metav1.ObjectMeta) (*types.Parent, *metav1.ObjectMeta)
 						Namespace: metadata.Namespace,
 					}, nil
 				}
-				app := owner.(Application)
+				app := owner.(*Application)
 				return &types.Parent{
 					Kind:           "Application",
 					Name:           value,
 					Namespace:      metadata.Namespace,
-					ApplicationUrl: getApplicationUrl(app.Resource.Namespace, app.Resource.Name),
+					ApplicationUrl: app.getApplicationUrl(),
 				}, app.Resource.ObjectMeta.DeepCopy()
 			}
 		}
 	}
 	return nil, nil
-}
-
-func getApplicationUrl(namespace, name string) string {
-	return fmt.Sprintf("%s/applications/%s/%s", config.Global.Argocd.Url, namespace, name)
 }

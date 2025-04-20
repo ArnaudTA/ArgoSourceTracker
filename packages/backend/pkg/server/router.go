@@ -52,9 +52,9 @@ func setupRouter() *gin.Engine {
 	v1 := r.Group("/api/v1")
 	{
 		v1.GET("/health", health)
-		v1.GET("/apps", fetchApplications)
-		v1.GET("/apps/:namespace/:name", fetchApplication)
-		v1.GET("/apps/:namespace/:name/origin", getApplicationOrigin)
+		v1.GET("/apps", listApplications)
+		v1.GET("/apps/:namespace/:name", getApplication)
+		v1.GET("/apps/:namespace/:name/origin", getApplicationGenealogy)
 	}
 
 	// Swagger documentation
