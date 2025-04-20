@@ -2,11 +2,11 @@ package server
 
 import (
 	"argocd-watcher/pkg/application"
+	"argocd-watcher/pkg/types"
 	"fmt"
 	"net/http"
 	"strings"
 
-	"github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,18 +22,19 @@ func fetchApplications(c *gin.Context) {
 	filterQuery := c.DefaultQuery("filter", "")
 	nameQuery := c.DefaultQuery("name", "")
 
-	summaries := []application.ApplicationSummary{}
+	summaries := []types.Summary{}
 	application.AppCache.Range(func(key, value any) bool {
 		name := fmt.Sprint(key)
 		if nameQuery != "" && !strings.Contains(name, nameQuery) {
 			return true
 		}
-		summary := application.GenerateApplicationSummary(value.(*v1alpha1.Application))
+		app := value.(application.Application)
+		summary := app.GetSummary()
 		switch filterQuery {
 		case "all":
 			summaries = append(summaries, summary)
 		case "outdated":
-			if summary.Status == application.Outdated {
+			if summary.Status == types.Outdated {
 				summaries = append(summaries, summary)
 			}
 		default:
@@ -61,11 +62,12 @@ func fetchApplication(c *gin.Context) {
 	namespace := c.Param("namespace")
 	key := namespace + "/" + name
 
-	app, ok := application.AppCache.Load(key)
+	result, ok := application.AppCache.Load(key)
 	if !ok {
 		c.AbortWithStatus(404)
 	}
-	summary := application.GenerateApplicationSummary(app.(*v1alpha1.Application))
+	app := result.(application.Application)
+	summary := app.GetSummary()
 
 	c.JSON(http.StatusOK, summary)
 }
@@ -92,7 +94,8 @@ func getApplicationOrigin(c *gin.Context) {
 		c.AbortWithStatus(404)
 		return
 	}
-	appTrack := application.GetApplicationTrack(item.(*v1alpha1.Application))
+	app := item.(application.Application)
+	appTrack := app.GetGenealogy()
 
 	c.JSON(http.StatusOK, appTrack)
 }

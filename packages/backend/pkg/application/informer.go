@@ -25,17 +25,19 @@ func Watch(appClient versioned.Interface) {
 	// Handlers avec cache
 	appInformer.Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
-			app := obj.(*v1alpha1.Application)
-			key := fmt.Sprintf("%s/%s", app.Namespace, app.Name)
+			resource := obj.(*v1alpha1.Application)
+			key := fmt.Sprintf("%s/%s", resource.Namespace, resource.Name)
+			app := Application{Resource: resource}
 			AppCache.Store(key, app)
-			go ParseApplication(app)
+			go app.Parse()
 			logrus.Debugf("[ADD] Application %s\n", key)
 		},
 		UpdateFunc: func(_, newObj interface{}) {
-			app := newObj.(*v1alpha1.Application)
-			key := fmt.Sprintf("%s/%s", app.Namespace, app.Name)
+			resource := newObj.(*v1alpha1.Application)
+			key := fmt.Sprintf("%s/%s", resource.Namespace, resource.Name)
+			app := Application{Resource: resource}
 			AppCache.Store(key, app)
-			go ParseApplication(app)
+			go app.Parse()
 			logrus.Debugf("[UPDATE] Application %s\n", key)
 		},
 		DeleteFunc: func(obj interface{}) {

@@ -5,6 +5,7 @@ import (
 	"argocd-watcher/pkg/applicationset"
 	"argocd-watcher/pkg/config"
 	"argocd-watcher/pkg/registries"
+	"argocd-watcher/pkg/types"
 	"fmt"
 
 	"github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
@@ -14,51 +15,20 @@ import (
 
 var InstanceLabel string = "argocd.argoproj.io/instance"
 
-func ParseApplication(app *v1alpha1.Application) {
-	sources := ExtractSources(app)
-	for _, source := range sources {
-		if source.RepoURL == "" {
-			continue
-		}
-		registries.Search(source.RepoURL)
-		if source.Chart == "" {
-			continue
-		}
-	}
-}
-
-func getApplicationStatus(charts []ChartSummary) ApplicationStatus {
+func getApplicationStatus(charts []types.ChartSummary) types.ApplicationStatus {
 	if len(charts) == 0 {
-		return ApplicationStatus(Ignored)
+		return types.Ignored
 	}
 	for _, chart := range charts {
 		if chart.Status == "Outdated" {
-			return ApplicationStatus(Outdated)
+			return types.Outdated
 		}
 	}
-	return ApplicationStatus(UpToDate)
+	return types.UpToDate
 }
 
-func GenerateApplicationSummary(app *v1alpha1.Application) ApplicationSummary {
-	charts := []ChartSummary{}
-	sources := ExtractSources(app)
-	for _, source := range sources {
-		charts = append(charts, GenerateChartSummary(source))
-	}
-	instance := app.Labels[InstanceLabel]
-
-	return ApplicationSummary{
-		Charts:         charts,
-		Status:         getApplicationStatus(charts),
-		Instance:       instance,
-		Name:           app.Name,
-		Namespace:      app.Namespace,
-		ApplicationUrl: getApplicationUrl(app.Namespace, app.Name),
-	}
-}
-
-func GenerateChartSummary(source ApplicationSourceWithRevision) ChartSummary {
-	version := semver.MustParse(source.revision)
+func GenerateChartSummary(source types.ApplicationSourceWithRevision) types.ChartSummary {
+	version := semver.MustParse(source.Revision)
 	status := "Unknown"
 	index, err := registries.Search(source.RepoURL)
 	newTags := []string{}
@@ -72,56 +42,13 @@ func GenerateChartSummary(source ApplicationSourceWithRevision) ChartSummary {
 			status = "Up-to-date"
 		}
 	}
-	return ChartSummary{
+	return types.ChartSummary{
 		RepoURL:  source.RepoURL,
 		Status:   status,
-		Revision: source.revision,
+		Revision: source.Revision,
 		NewTags:  newTags,
 		Chart:    source.Chart,
 	}
-}
-
-func ExtractSources(app *v1alpha1.Application) []ApplicationSourceWithRevision {
-	syncStatus := app.Status.Sync
-
-	sources := []ApplicationSourceWithRevision{}
-
-	if len(syncStatus.Revisions) != 0 {
-		for idx, source := range syncStatus.ComparedTo.Sources {
-			if source.Chart == "" {
-				continue
-			}
-			sources = append(sources, ApplicationSourceWithRevision{
-				source,
-				syncStatus.Revisions[idx],
-			})
-		}
-	} else if syncStatus.Revision != "" && syncStatus.ComparedTo.Source.Size() == 0 {
-		sources = append(sources, ApplicationSourceWithRevision{
-			syncStatus.ComparedTo.Source,
-			syncStatus.Revision,
-		})
-	}
-	return sources
-}
-
-func GetApplicationTrack(application *v1alpha1.Application) []*GenealogyItem {
-	track := []*GenealogyItem{}
-	metadata := &application.ObjectMeta
-
-	for i := 0; i < 10; i++ {
-		item, parentMetadata := findParent(metadata)
-		if item == nil {
-			break
-		}
-		if parentMetadata == nil {
-			item.ErrorMessage = "Can't find parent resource"
-			break
-		}
-		track = append(track, item)
-		metadata = parentMetadata
-	}
-	return track
 }
 
 type PreviousResource struct {
@@ -130,21 +57,21 @@ type PreviousResource struct {
 	Found bool
 }
 
-func findParent(metadata *metav1.ObjectMeta) (*GenealogyItem, *metav1.ObjectMeta) {
+func findParent(metadata *metav1.ObjectMeta) (*types.Parent, *metav1.ObjectMeta) {
 	if metadata.OwnerReferences != nil {
 		for _, ref := range metadata.DeepCopy().OwnerReferences {
 			if ref.Kind == "ApplicationSet" {
 				key := config.Global.Argocd.Namespace + "/" + ref.Name
 				owner, ok := applicationset.AppSetCache.Load(key)
 				if !ok {
-					return &GenealogyItem{
+					return &types.Parent{
 						Kind:      ref.Kind,
 						Name:      ref.Name,
 						Namespace: metadata.Namespace,
 					}, nil
 				}
 				appset := owner.(*v1alpha1.ApplicationSet)
-				return &GenealogyItem{
+				return &types.Parent{
 					Kind:      ref.Kind,
 					Name:      ref.Name,
 					Namespace: metadata.Namespace,
@@ -158,19 +85,19 @@ func findParent(metadata *metav1.ObjectMeta) (*GenealogyItem, *metav1.ObjectMeta
 				key := config.Global.Argocd.Namespace + "/" + value
 				owner, ok := AppCache.Load(key)
 				if !ok {
-					return &GenealogyItem{
+					return &types.Parent{
 						Kind:      "Application",
 						Name:      value,
 						Namespace: metadata.Namespace,
 					}, nil
 				}
-				app := owner.(*v1alpha1.Application)
-				return &GenealogyItem{
+				app := owner.(Application)
+				return &types.Parent{
 					Kind:           "Application",
 					Name:           value,
 					Namespace:      metadata.Namespace,
-					ApplicationUrl: getApplicationUrl(app.Namespace, app.Name),
-				}, app.ObjectMeta.DeepCopy()
+					ApplicationUrl: getApplicationUrl(app.Resource.Namespace, app.Resource.Name),
+				}, app.Resource.ObjectMeta.DeepCopy()
 			}
 		}
 	}
