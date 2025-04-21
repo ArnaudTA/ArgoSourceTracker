@@ -55,10 +55,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/types.Summary"
-                            }
+                            "$ref": "#/definitions/types.ListApplicationRes"
                         }
                     }
                 }
@@ -186,17 +183,25 @@ const docTemplate = `{
                 }
             }
         },
+        "types.AppStats": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "integer"
+            }
+        },
         "types.ApplicationStatus": {
             "type": "string",
             "enum": [
                 "Up-to-date",
                 "Ignored",
-                "Outdated"
+                "Outdated",
+                "Error"
             ],
             "x-enum-varnames": [
                 "UpToDate",
                 "Ignored",
-                "Outdated"
+                "Outdated",
+                "Error"
             ]
         },
         "types.ChartSummary": {
@@ -206,6 +211,9 @@ const docTemplate = `{
             ],
             "properties": {
                 "chart": {
+                    "type": "string"
+                },
+                "error": {
                     "type": "string"
                 },
                 "newTags": {
@@ -221,10 +229,28 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "status": {
-                    "type": "string"
+                    "$ref": "#/definitions/types.ApplicationStatus"
                 },
                 "type": {
                     "type": "string"
+                }
+            }
+        },
+        "types.ListApplicationRes": {
+            "type": "object",
+            "required": [
+                "items",
+                "stats"
+            ],
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/types.Summary"
+                    }
+                },
+                "stats": {
+                    "$ref": "#/definitions/types.AppStats"
                 }
             }
         },

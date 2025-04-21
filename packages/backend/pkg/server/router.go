@@ -2,6 +2,7 @@ package server
 
 import (
 	"argocd-watcher/pkg/config"
+	"argocd-watcher/pkg/metrics"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -30,12 +31,13 @@ func health(c *gin.Context) {
 
 func setupRouter() *gin.Engine {
 	gin.DefaultWriter = logrus.StandardLogger().Out // redirige vers logrus
-	r := gin.New()
+	r := gin.Default()
+
+	metrics.Expose(r)
 
 	// Ajoute les middlewares
 	r.Use(gin.Logger(), gin.Recovery())
 
-	go startMetrics(r)
 	// Enable CORS
 	r.Use(func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
@@ -75,6 +77,7 @@ func setupRouter() *gin.Engine {
 
 	listen := fmt.Sprintf("%s:%d", config.Global.Server.Address, config.Global.Server.Port)
 	logrus.Infof("Server listen on: %s\n", listen)
+	
 	r.Run(listen)
 
 	return r

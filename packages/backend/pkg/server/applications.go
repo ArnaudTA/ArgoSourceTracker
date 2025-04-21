@@ -2,13 +2,9 @@ package server
 
 import (
 	"argocd-watcher/pkg/argocd/application"
-	"argocd-watcher/pkg/types"
-	"fmt"
 	"net/http"
-	"sort"
 	"strconv"
 	"strings"
-	"sync"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,7 +13,7 @@ import (
 // @Description Retourne la liste des applications et le rapport des versions
 // @Tags Applications
 // @Produce json
-// @Success 200 {array} types.Summary
+// @Success 200 {object} types.ListApplicationRes
 // @Param name query string false "Name to search"
 // @Param offset query int64 false "Number of elements to skip, default: 0"
 // @Param limit query int64 false "Number of elements to return, default: 10"
@@ -29,64 +25,13 @@ func listApplications(c *gin.Context) {
 	limitQuery := c.DefaultQuery("limit", "")
 	nameQuery := c.DefaultQuery("name", "")
 
-	statusFilter := strings.Split(statusQuery, ",")
-	total := 0
-	if len(statusFilter) == 1 && statusFilter[0] == "" {
-		statusList := []types.ApplicationStatus{
-			types.Outdated,
-		}
-		statusFilter := []string{}
-		for _, status := range statusList {
-			statusFilter = append(statusFilter, string(status))
-		}
-	}
-
 	offset := stringToInt(offsetQuery, 0)
 	limit := stringToInt(limitQuery, 10)
-	summaries := []types.Summary{}
+	statusFilter := strings.Split(statusQuery, ",")
 
-	keys := getKeys(&application.AppCache)
-	sort.Strings(keys)
-	offSetted := 0
-	for _, key := range keys {
-		appCached, ok := application.AppCache.Load(key)
-		if !ok {
-			continue
-		}
-		app := appCached.(*application.Application)
-		summary := app.GetSummary()
-		if len(statusFilter) > 0 && statusFilter[0] != "" && !isEnumInList(summary.Status, statusFilter) {
-			continue
-		}
-		if nameQuery != "" && !strings.Contains(key, nameQuery) {
-			continue
-		}
-		if offSetted < offset {
-			offSetted++
-			total++
-			continue
-		}
-		if len(summaries) >= limit {
-			total++
-			continue
-		}
-		summaries = append(summaries, summary)
-		offSetted++
-		total++
+	resp := application.List(statusFilter, nameQuery, offset, limit)
 
-	}
-
-	application.AppCache.Range(func(key, value any) bool {
-		name := fmt.Sprint(key)
-		if nameQuery != "" && !strings.Contains(name, nameQuery) {
-			return true
-		}
-
-		return true
-	})
-	c.Header("x-total", fmt.Sprintf("%d", total))
-	c.Header("x-offset", fmt.Sprintf("%d", offset))
-	c.JSON(http.StatusOK, summaries)
+	c.JSON(http.StatusOK, resp)
 }
 
 // @Summary Récupe une application
@@ -140,28 +85,6 @@ func getApplicationGenealogy(c *gin.Context) {
 	appTrack := app.GetGenealogy()
 
 	c.JSON(http.StatusOK, appTrack)
-}
-
-func getKeys(m *sync.Map) []string {
-	keys := []string{}
-
-	m.Range(func(key, value any) bool {
-		strKey := key.(string)
-		keys = append(keys, strKey)
-		return true // continuer à itérer
-	})
-
-	return keys
-}
-
-// Fonction pour vérifier si une valeur de l'enum est dans une liste de strings
-func isEnumInList(val types.ApplicationStatus, list []string) bool {
-	for _, item := range list {
-		if string(val) == item {
-			return true
-		}
-	}
-	return false
 }
 
 func stringToInt(str string, defaultValue int) int {

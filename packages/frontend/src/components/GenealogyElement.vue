@@ -1,17 +1,23 @@
 <script setup lang="ts">
-import { Button, Card } from 'primevue';
-import type { TypesParent } from '../api/Api';
-import { goToApp } from '../utils/client';
+import type { TypesParent } from '../api/Api'
+import { Button, Card } from 'primevue'
+import { goToApp } from '../utils/client'
 
 const props = defineProps<TypesParent>()
 </script>
 
 <template>
-    <Card :title="`Kind: ${kind}\nName: ${name}`" @click="kind === 'Application' && goToApp(props)" :status="'None'">
-        <template #title>{{ namespace+"/"+name }}</template>
-        <template #subtitle>{{ kind }}</template>
+    <Card class="hidden" :title="`Kind: ${kind}\nName: ${name}`" status="None"
+        @click="kind === 'Application' && goToApp(props)">
+        <template #title>
+            {{ `${namespace}/${name}` }}
+        </template>
+        <template #subtitle>
+            {{ kind }}
+        </template>
         <template #footer>
-            <Button v-if="applicationUrl" icon="pi pi-external-link" as="a" variant="link" label="ArgoCD"></Button>
+            <Button v-if="applicationUrl" icon="pi pi-external-link" as="a" variant="link" label="ArgoCD"
+                :href="applicationUrl" target="_blank" rel="noopener" @click.stop="() => { }" />
         </template>
     </Card>
 </template>
@@ -30,5 +36,8 @@ const props = defineProps<TypesParent>()
     text-align: center;
 }
 
-.names {}
+.hover\:bg-gray-50:hover {
+  --un-bg-opacity: 1;
+  background-color: var(--p-card-background);
+}
 </style>

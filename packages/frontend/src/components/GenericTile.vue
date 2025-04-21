@@ -52,25 +52,4 @@ withDefaults(defineProps<{
     text-decoration: none;
     justify-self: center;
 }
-
-.node::after {
-    height: 0.2rem;
-    content: "";
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-}
-.node.uptodate::after {
-    background-color: rgb(2, 231, 2);
-}
-.node.outdated::after {
-    background-color: rgb(255, 178, 35);
-}
-.node.error::after {
-    background-color: red;
-}
-.node.ignored::after {
-    background-color: rgba(211, 211, 211, 0.562);
-}
 </style>

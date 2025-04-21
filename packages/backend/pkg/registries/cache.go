@@ -33,8 +33,8 @@ type IndexFile struct {
 }
 
 func Search(registry string) (*IndexFile, error) {
-	if !strings.HasPrefix(registry, "https://") && !strings.HasPrefix(registry, "http://") {
-		return nil, errors.New("invalid url")
+	if (!strings.HasPrefix(registry, "https://") && !strings.HasPrefix(registry, "http://")) || strings.HasSuffix(registry, ".git") {
+		return nil, errors.New("Don't support OCI registry yet")
 	}
 	redisKey := generateKey(registry)
 
@@ -50,7 +50,7 @@ func Search(registry string) (*IndexFile, error) {
 		defer resp.Body.Close()
 
 		if resp.StatusCode != http.StatusOK {
-			logrus.Fatalf("Code HTTP inattendu : %d", resp.StatusCode)
+			logrus.Errorf("Code HTTP inattendu : %d, for %s", resp.StatusCode, registry)
 		}
 
 		body, err := io.ReadAll(resp.Body)

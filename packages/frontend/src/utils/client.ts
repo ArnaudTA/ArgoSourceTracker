@@ -1,8 +1,9 @@
-import { Api, TypesApplicationStatus } from "../api/Api";
-import router from "../router";
+import type { TypesApplicationStatus } from '../api/Api'
+import { Api } from '../api/Api'
+import router from '../router'
 
 export const client = new Api({
-    baseURL: '/'
+    baseURL: '/',
 })
 
 export function goToApp(application: { name: string, namespace: string }) {
@@ -10,16 +11,17 @@ export function goToApp(application: { name: string, namespace: string }) {
         name: 'Application',
         params: {
             name: application.name,
-            namespace: application.namespace
-        }
+            namespace: application.namespace,
+        },
     })
 }
 
 export type TileStatus = 'Up-to-date' | 'Ignored' | 'Outdated' | 'Checking' | 'Unknown' | 'Error' | 'None'
 
 export const statusClass: Record<TypesApplicationStatus | 'None', string> = {
-    "Up-to-date": "uptodate",
-    Ignored: "ignored",
-    Outdated: "outdated",
-    None: "none"
+    'Up-to-date': 'uptodate',
+    'Ignored': 'ignored',
+    'Outdated': 'outdated',
+    'Error': 'error',
+    'None': 'none',
 }

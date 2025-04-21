@@ -17,6 +17,9 @@ type Application struct {
 func (app *Application) GetSummary() types.Summary {
 	charts := []types.ChartSummary{}
 	for _, source := range app.Sources {
+		if source.Source.Chart == "" {
+			continue
+		}
 		charts = append(charts, GenerateChartSummary(source))
 	}
 	instance := app.Resource.Labels[InstanceLabel]
@@ -65,7 +68,7 @@ func (app *Application) ExtractSources() []*types.ApplicationSourceWithRevision 
 				Revision: syncStatus.Revisions[idx],
 			})
 		}
-	} else if syncStatus.Revision != "" && syncStatus.ComparedTo.Source.Size() == 0 {
+	} else if syncStatus.Revision != "" && syncStatus.ComparedTo.Source.Size() != 0 {
 		sources = append(sources, &types.ApplicationSourceWithRevision{
 			Source:   syncStatus.ComparedTo.Source,
 			Revision: syncStatus.Revision,
@@ -96,10 +99,14 @@ func getApplicationStatus(charts []types.ChartSummary) types.ApplicationStatus {
 	if len(charts) == 0 {
 		return types.Ignored
 	}
+	var worstStatus types.ApplicationStatus = types.UpToDate
 	for _, chart := range charts {
+		if chart.Status == types.Error {
+			return types.Error
+		}
 		if chart.Status == "Outdated" {
-			return types.Outdated
+			worstStatus = types.Outdated
 		}
 	}
-	return types.UpToDate
+	return worstStatus
 }

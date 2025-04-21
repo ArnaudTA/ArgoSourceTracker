@@ -11,10 +11,6 @@ onMounted(async () => {
     sideMenuStore.checkHealth()
 })
 
-function toggleDarkMode() {
-    document.documentElement.classList.toggle('my-app-dark');
-}
-
 </script>
 
 <template>
@@ -23,8 +19,9 @@ function toggleDarkMode() {
             <div class="header" :class="{ menu: true, condensed: sideMenuStore.condensed }">
                 <img :src="logoUrl" alt="" srcset="">
                 <span v-if="!sideMenuStore.condensed">ArgoCD Source Tracker</span>
-                <Button link class="expand-button" @click.prevent="sideMenuStore.condensed = !sideMenuStore.condensed">{{
-                    !sideMenuStore.condensed ? "<" : ">" }}</Button>
+                <Button link class="expand-button"
+                    @click.prevent="sideMenuStore.condensed = !sideMenuStore.condensed">{{
+                        !sideMenuStore.condensed ? "<" : ">" }}</Button>
             </div>
         </div>
         <GenericDrawer>
@@ -33,13 +30,11 @@ function toggleDarkMode() {
         <router-view name="menu"></router-view>
         <div class="separator"></div>
         <GenericDrawer>
-            Api status: {{ sideMenuStore.health }}
+            <span><Button variant="link" as="div" icon="pi pi-circle-fill"></Button>Api status:
+                {{ sideMenuStore.health }}</span>
         </GenericDrawer>
         <GenericDrawer>
-            <Button variant="link" as="a" href="/ui/docs">Documentation</Button>
-        </GenericDrawer>
-        <GenericDrawer>
-            <Button variant="outlined" label="Toggle Dark Mode" @click="toggleDarkMode()" />
+            <Button icon="pi pi-book" variant="link" as="a" href="/ui/docs" label="Documentation"></Button>
         </GenericDrawer>
     </div>
 </template>

@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import { goToApp } from '../utils/client'
-import GenericTile from '../components/GenericTile.vue'
+import { goToApp, statusClass } from '../utils/client'
 import { useHomeStore } from '../stores/home'
-import { Button, MeterGroup, Paginator, ProgressBar, Toolbar } from 'primevue'
-import { TypesApplicationStatus } from '../api/Api'
+import { Button, Card, MeterGroup, Paginator, ProgressBar, Toolbar } from 'primevue'
 
 const homeStore = useHomeStore()
 
@@ -28,31 +26,34 @@ const homeStore = useHomeStore()
             </template>
         </Toolbar>
         <div class="content">
-            <MeterGroup :value="homeStore.meters" :max="homeStore.applications.length" class="mb-4" />
+            <MeterGroup :value="homeStore.meters" :max="homeStore.applications.length" class="mb-4">
+                <template #label><span></span></template>
+            </MeterGroup>
             <ProgressBar :class="{ invisible: !homeStore.isLoading }" mode="indeterminate" style="height: 6px"
                 class="mb-4">
             </ProgressBar>
             <p v-if="homeStore.errorMessage">errorMessage</p>
             <div v-else class="appList">
-                <GenericTile v-for="application in homeStore.applications" class="tile" @click="goToApp(application)"
-                    :status="(application.status as TypesApplicationStatus)">
-                    <table>
-                        <tbody>
-                            <tr>
-                                <td>Name:</td>
-                                <td>{{ application.name }}</td>
-                            </tr>
-                            <tr>
-                                <td>Namespace:</td>
-                                <td>{{ application.namespace }}</td>
-                            </tr>
-                            <tr>
-                                <td>Status:</td>
-                                <td>{{ application.status }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </GenericTile>
+                <Card v-for="application in homeStore.applications" @click="goToApp(application)" :class="statusClass[application.status]" class="card">
+                    <template #content>
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td>Name:</td>
+                                    <td>{{ application.name }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Namespace:</td>
+                                    <td>{{ application.namespace }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Status:</td>
+                                    <td>{{ application.status }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </template>
+                </Card>
             </div>
         </div>
     </div>
@@ -84,7 +85,6 @@ const homeStore = useHomeStore()
 }
 
 .tile {
-    padding: 0.5rem;
     display: flex;
     flex-direction: row;
 }
@@ -105,5 +105,9 @@ td {
     display: flex;
     gap: 3rem;
     justify-content: space-between;
+}
+
+.card {
+    position: relative;
 }
 </style>

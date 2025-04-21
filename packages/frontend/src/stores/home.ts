@@ -1,72 +1,71 @@
-import { computed, ComputedRef, ref, watch } from 'vue'
+import type { PageState } from 'primevue'
+import type { ComputedRef } from 'vue'
+import type { TypesSummary } from '../api/Api'
 import { defineStore } from 'pinia'
-import { TypesApplicationStatus, TypesSummary } from '../api/Api'
+import { computed, ref, watch } from 'vue'
+import { TypesApplicationStatus } from '../api/Api'
 import { client } from '../utils/client'
-import { PageState } from 'primevue'
 
 export const useHomeStore = defineStore('home-menu', () => {
-    const StatusChoice = ref<{ name: TypesApplicationStatus, key: TypesApplicationStatus }[]>([
-        { name: TypesApplicationStatus.Ignored, key: TypesApplicationStatus.Ignored },
-        { name: TypesApplicationStatus.Outdated, key: TypesApplicationStatus.Outdated },
-        { name: TypesApplicationStatus.UpToDate, key: TypesApplicationStatus.UpToDate },
-    ]);
-    const selectedStatus = ref<{ name: TypesApplicationStatus, key: TypesApplicationStatus }[]>([
-        { name: TypesApplicationStatus.UpToDate, key: TypesApplicationStatus.UpToDate },
-        { name: TypesApplicationStatus.Outdated, key: TypesApplicationStatus.Outdated },
-    ]);
+    const StatusChoice = ref<{ name: TypesApplicationStatus, key: TypesApplicationStatus }[]>(Object.values(TypesApplicationStatus).map(v => ({
+        name: v as TypesApplicationStatus,
+        key: v as TypesApplicationStatus,
+    })))
+    const selectedStatus = ref<TypesApplicationStatus[]>([])
 
     const isLoading = ref(true)
     const errorMessage = ref('')
-    const total = ref(0)
-    const limit = ref(10)
+    const limit = ref(25)
     const page = ref(1)
     const offset = ref(0)
-
+    const stats = ref<Record<string, number>>({})
+    const total = computed(() => Object.values(stats.value).reduce((sum, n) => (sum + n), 0))
     const applications = ref<TypesSummary[]>([])
 
     function refreshApps() {
         isLoading.value = true
         errorMessage.value = ''
+
         client.api.v1AppsList({
-            filter: selectedStatus.value
-                .map(status => status.key)
-                .join(','),
+            filter: selectedStatus.value.join(','),
             offset: offset.value,
             limit: limit.value,
         })
-            .then(res => {
-                applications.value = res.data
-                total.value = Number(res.headers["x-total"])
+            .then((res) => {
+                applications.value = res.data.items
+                stats.value = res.data.stats
             })
             .catch(reason => errorMessage.value = reason)
             .finally(() => isLoading.value = false)
     }
 
     function setPage(p: PageState) {
-        console.log(p);
-
         offset.value = p.first
         limit.value = p.rows
         page.value = p.page
         refreshApps()
     }
 
-    type Meter = {
-        label: TypesApplicationStatus, color: string, value: number
+    interface Meter {
+        label: TypesApplicationStatus
+        color: string
+        value: number
     }
     const numberOfStatus: Record<TypesApplicationStatus, ComputedRef<number>> = {
         [TypesApplicationStatus.UpToDate]: computed(() => applications.value.filter(app => app.status === TypesApplicationStatus.UpToDate).length),
         [TypesApplicationStatus.Ignored]: computed(() => applications.value.filter(app => app.status === TypesApplicationStatus.Ignored).length),
         [TypesApplicationStatus.Outdated]: computed(() => applications.value.filter(app => app.status === TypesApplicationStatus.Outdated).length),
+        [TypesApplicationStatus.Error]: computed(() => applications.value.filter(app => app.status === TypesApplicationStatus.Error).length),
     }
     const statusColor: Record<TypesApplicationStatus, string> = {
-        Outdated: '#ffb223',
-        "Up-to-date": '#02e702',
-        Ignored: '#d3d3d38f'
+        'Up-to-date': '#02e702',
+        'Outdated': '#ffb223',
+        'Ignored': '#d3d3d38f',
+        'Error': '#ff0000',
     }
     const meters = computed<Meter[]>(() => Object.entries(numberOfStatus)
         .filter(([_k, v]) => v.value > 0)
-        .map(([k, v]) => ({ label: k as TypesApplicationStatus, value: v.value, color: statusColor[k as TypesApplicationStatus] }))
+        .map(([k, v]) => ({ label: k as TypesApplicationStatus, value: v.value, color: statusColor[k as TypesApplicationStatus] })),
     )
     watch(selectedStatus, refreshApps)
     return {
@@ -81,5 +80,11 @@ export const useHomeStore = defineStore('home-menu', () => {
         setPage,
         refreshApps,
         meters,
+        stats,
     }
+}, {
+    persist: {
+        storage: sessionStorage,
+        pick: ['selectedStatus', 'limit'],
+    },
 })

@@ -26,3 +26,6 @@ dist-ssr
 .env
 **/tmp
 packages/frontend/components.d.ts
+
+# manifest to test metrics scraping by prometheus
+scrape-config

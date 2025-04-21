@@ -14,19 +14,28 @@ export enum TypesApplicationStatus {
   UpToDate = "Up-to-date",
   Ignored = "Ignored",
   Outdated = "Outdated",
+  Error = "Error",
 }
 
 export interface ServerCheck {
   status: string;
 }
 
+export type TypesAppStats = Record<string, number>;
+
 export interface TypesChartSummary {
   chart: string;
+  error?: string;
   newTags?: string[];
   repoURL?: string;
   revision?: string;
-  status?: string;
+  status?: TypesApplicationStatus;
   type?: string;
+}
+
+export interface TypesListApplicationRes {
+  items: TypesSummary[];
+  stats: TypesAppStats;
 }
 
 export interface TypesParent {
@@ -253,7 +262,7 @@ export class Api<
       },
       params: RequestParams = {},
     ) =>
-      this.request<TypesSummary[], any>({
+      this.request<TypesListApplicationRes, any>({
         path: `/api/v1/apps`,
         method: "GET",
         query: query,

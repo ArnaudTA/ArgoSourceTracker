@@ -28,12 +28,16 @@ type RedisConfig struct {
 	Password string `json:"password" env:"REDIS_PASSWORD" default:"" flag:"redis.password"`
 }
 
+type LogConfig struct {
+	Level int `json:"level" env:"LOG_LEVEL" default:"3" flag:"log.level"`
+}
 type Config struct {
 	Server           ServerConfig `json:"server"`
 	RegistryCacheTTL int          `json:"registryCacheTTL" env:"REG_CACHE_TTL" default:"300" flag:"reg-cache-ttl"`
 	Kubeconfig       string       `json:"Kubeconfig" env:"KUBECONFIG" default:"" flag:"kubeconfig"`
 	Argocd           ArgocdConfig `json:"argocd"`
 	Redis            RedisConfig  `json:"redis"`
+	Log              LogConfig    `json:"log"`
 }
 
 func loadStruct(v reflect.Value, t reflect.Type, flagSet *flag.FlagSet, flagValues map[string]*string) error {

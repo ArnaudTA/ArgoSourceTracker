@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import { Button, Panel } from 'primevue';
+import { Button } from 'primevue';
 
 </script>
 
 <template>
 
     <div id="page">
-        <Panel header="Swagger">
-                <Button as="a" href="/swagger/index.html">EXPLORE API</Button>
-        </Panel>
+        <div class="element">
+            <p>Swagger</p>
+            <Button as="a" href="/swagger/index.html">EXPLORE API</Button>
+        </div>
         <div class="element">
             <p>Source Code</p>
             <Button as="a" href="https://github.com/cableship/argocd-source-tracker">EXPLORE CODE</Button>

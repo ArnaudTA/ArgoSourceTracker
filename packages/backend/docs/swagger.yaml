@@ -7,19 +7,27 @@ definitions:
     required:
     - status
     type: object
+  types.AppStats:
+    additionalProperties:
+      type: integer
+    type: object
   types.ApplicationStatus:
     enum:
     - Up-to-date
     - Ignored
     - Outdated
+    - Error
     type: string
     x-enum-varnames:
     - UpToDate
     - Ignored
     - Outdated
+    - Error
   types.ChartSummary:
     properties:
       chart:
+        type: string
+      error:
         type: string
       newTags:
         items:
@@ -30,11 +38,23 @@ definitions:
       revision:
         type: string
       status:
-        type: string
+        $ref: '#/definitions/types.ApplicationStatus'
       type:
         type: string
     required:
     - chart
+    type: object
+  types.ListApplicationRes:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/types.Summary'
+        type: array
+      stats:
+        $ref: '#/definitions/types.AppStats'
+    required:
+    - items
+    - stats
     type: object
   types.Parent:
     properties:
@@ -110,9 +130,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/types.Summary'
-            type: array
+            $ref: '#/definitions/types.ListApplicationRes'
       summary: Liste les applications
       tags:
       - Applications

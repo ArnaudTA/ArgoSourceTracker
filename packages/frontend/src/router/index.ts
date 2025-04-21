@@ -1,11 +1,10 @@
+import type {
+    RouteRecordRaw,
+} from 'vue-router'
 import {
     createRouter,
     createWebHistory,
 } from 'vue-router'
-import type {
-    RouteRecordRaw,
-} from 'vue-router'
-
 
 const Home = () => import('../views/Home.vue')
 const Docs = () => import('../views/Docs.vue')
@@ -18,8 +17,9 @@ const MAIN_TITLE = 'ArgoCD Source Tracker'
 export const routes: Readonly<RouteRecordRaw[]> = [
     {
         path: '/',
-        redirect: { name: 'Home' }
-    }, {
+        redirect: { name: 'Home' },
+    },
+    {
         path: '/ui',
         children: [
             {
@@ -36,7 +36,7 @@ export const routes: Readonly<RouteRecordRaw[]> = [
                 props(to) {
                     return {
                         name: to.params.name,
-                        namespace: to.params.namespace
+                        namespace: to.params.namespace,
                     }
                 },
                 component: ApplicationDetails,
@@ -46,7 +46,7 @@ export const routes: Readonly<RouteRecordRaw[]> = [
                 name: 'Docs',
                 component: Docs,
             },
-        ]
+        ],
     },
     {
         path: '/:pathMatch(.*)*',

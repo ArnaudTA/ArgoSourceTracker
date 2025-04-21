@@ -8,9 +8,7 @@ const (
 	UpToDate ApplicationStatus = "Up-to-date"
 	Ignored  ApplicationStatus = "Ignored"
 	Outdated ApplicationStatus = "Outdated"
-	// Unknown  ApplicationStatus = "Unknown"
-	// Checking ApplicationStatus = "Checking"
-	// Error    ApplicationStatus = "Error"
+	Error    ApplicationStatus = "Error"
 )
 
 type Summary struct {
@@ -23,12 +21,13 @@ type Summary struct {
 }
 
 type ChartSummary struct {
-	RepoURL  string   `json:"repoURL"`
-	Status   string   `json:"status,omitempty"`
-	Revision string   `json:"revision"`
-	NewTags  []string `json:"newTags,omitempty"`
-	Protocol string   `json:"type"`
-	Chart    string   `json:"chart" binding:"required"`
+	Error    string            `json:"error"`
+	RepoURL  string            `json:"repoURL"`
+	Status   ApplicationStatus `json:"status"`
+	Revision string            `json:"revision"`
+	NewTags  []string          `json:"newTags,omitempty"`
+	Protocol string            `json:"type"`
+	Chart    string            `json:"chart" binding:"required"`
 }
 
 type ApplicationSourceWithRevision struct {
@@ -42,4 +41,10 @@ type Parent struct {
 	Namespace      string `json:"namespace" binding:"required"`
 	ApplicationUrl string `json:"applicationUrl,omitempty"`
 	ErrorMessage   string `json:"errorMessage,omitempty"`
+}
+
+type AppStats map[ApplicationStatus]int
+type ListApplicationRes struct {
+	Items []Summary `json:"items" binding:"required"`
+	Stats AppStats `json:"stats" binding:"required"`
 }

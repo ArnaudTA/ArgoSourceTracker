@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import type { TypesApplicationStatus, TypesChartSummary } from '../api/Api';
-import GenericTile from './GenericTile.vue';
+import type { TypesChartSummary } from '../api/Api'
+import { Card } from 'primevue'
+import { ref } from 'vue'
+import { statusClass } from '../utils/client';
 
 defineProps<TypesChartSummary>()
 
@@ -9,23 +10,32 @@ const expanded = ref<boolean>(false)
 </script>
 
 <template>
-    <GenericTile :title="chart" :status="(status as TypesApplicationStatus)">
-        <div>
+    <Card :title="chart" :class="statusClass[status ?? 'None']" class="card">
+        <template #title>
+            {{ chart }}
+        </template>
+        <template #subtitle>
+            revision: {{ revision }}
+        </template>
+        <template #content>
             <div>
-                repo: {{ repoURL || '-' }}</div>
-            <div>
-                chart: {{ chart || '-' }}</div>
-            <div>
-                revision: {{ revision || '-' }}</div>
-
-        </div>
-        <template v-if="newTags">
-            <div>
+                repo: {{ repoURL }}
+            </div>
+            <div v-if="error">
+                error: {{ error }}
+            </div>
+            <div v-if="newTags" class="mt-2">
                 <span>Newer Tags</span>
-                <div>
-                    <div v-for="tag in expanded ? newTags : newTags.slice(0, 3)" :key="tag">{{ tag }}</div>
+                <div v-for="tag in expanded ? newTags : newTags.slice(0, 3)" :key="tag">
+                    {{ tag }}
                 </div>
             </div>
         </template>
-    </GenericTile>
+    </Card>
 </template>
+
+<style>
+.card {
+    position: relative;
+}
+</style>

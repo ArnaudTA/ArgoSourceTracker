@@ -1,10 +1,14 @@
-import { createApp } from 'vue'
+import Theme from '@primeuix/themes/nora'
 import { createPinia } from 'pinia'
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+import PrimeVue from 'primevue/config'
+import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router/index.js'
-import PrimeVue from 'primevue/config';
-import Theme from '@primeuix/themes/nora';
 import 'virtual:uno.css'
+
+const pinia = createPinia()
+pinia.use(piniaPluginPersistedstate)
 
 createApp(App)
     .use(PrimeVue, {
@@ -13,9 +17,9 @@ createApp(App)
         },
         options: {
             darkModeSelector: '.my-app-dark',
-            cssLayer: false
-        }
+            cssLayer: false,
+        },
     })
-    .use(createPinia())
+    .use(pinia)
     .use(router)
     .mount('#app')

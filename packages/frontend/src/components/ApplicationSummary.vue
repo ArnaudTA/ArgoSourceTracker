@@ -11,7 +11,6 @@ defineProps<{
 </script>
 
 <template>
-    <h2>Charts</h2>
     <p v-if="summary.charts.length === 0">No Charts found</p>
     <div class="chart-list">
         <SourceElement v-for="(chart, index) in summary.charts" :key="index" class="border-b hover:bg-gray-50"

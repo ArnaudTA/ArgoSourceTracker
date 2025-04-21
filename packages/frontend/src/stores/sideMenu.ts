@@ -1,5 +1,5 @@
-import { ref } from 'vue'
 import { defineStore } from 'pinia'
+import { ref } from 'vue'
 import { client } from '../utils/client'
 
 export const useSideMenuStore = defineStore('side-menu', () => {
@@ -11,7 +11,7 @@ export const useSideMenuStore = defineStore('side-menu', () => {
         health.value = CHECKING_TEXT
         health.value = await client.api.v1HealthList()
             .then(res => res.data.status)
-            .catch(_ => "Can't reach")
+            .catch(_ => 'Can\'t reach')
             .finally(() => setTimeout(() => {
                 checkHealth()
             }, 20000))

@@ -10,6 +10,7 @@ import (
 	"argocd-watcher/pkg/argocd/applicationset"
 	"argocd-watcher/pkg/cache"
 	"argocd-watcher/pkg/config"
+	"argocd-watcher/pkg/metrics"
 	"argocd-watcher/pkg/server"
 
 	"github.com/sirupsen/logrus"
@@ -19,7 +20,7 @@ func main() {
 	if err := config.LoadGlobal(); err != nil {
 		logrus.Fatal(err)
 	}
-	logrus.SetLevel(logrus.DebugLevel)
+	logrus.SetLevel(logrus.Level(config.Global.Log.Level))
 	logrus.SetFormatter(&logrus.TextFormatter{FullTimestamp: true})
 
 	argocd.LoadArgoConf()
@@ -28,5 +29,6 @@ func main() {
 	go application.Watch(appClient)
 	go applicationset.Watch(appClient)
 	cache.GetClient()
+	metrics.Init()
 	server.StartGin()
 }
