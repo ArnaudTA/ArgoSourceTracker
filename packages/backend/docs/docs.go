@@ -33,6 +33,18 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
+                        "type": "integer",
+                        "description": "Number of elements to skip, default: 0",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of elements to return, default: 10",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
                         "type": "string",
                         "description": "Filtre les applications",
                         "name": "filter",
@@ -45,7 +57,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/application.ApplicationSummary"
+                                "$ref": "#/definitions/types.Summary"
                             }
                         }
                     }
@@ -82,7 +94,17 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/application.ApplicationSummary"
+                            "$ref": "#/definitions/types.Summary"
+                        },
+                        "headers": {
+                            "x-offset": {
+                                "type": "string",
+                                "description": "Return the offset you provided"
+                            },
+                            "x-total": {
+                                "type": "string",
+                                "description": "Total of items available"
+                            }
                         }
                     }
                 }
@@ -120,7 +142,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/application.GenealogyItem"
+                                "$ref": "#/definitions/types.Parent"
                             }
                         }
                     },
@@ -153,60 +175,31 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "application.ApplicationStatus": {
-            "type": "string",
-            "enum": [
-                "Up-to-date",
-                "Unknown",
-                "Outdated",
-                "Ignored",
-                "Checking",
-                "Error"
-            ],
-            "x-enum-varnames": [
-                "UpToDate",
-                "Unknown",
-                "Outdated",
-                "Ignored",
-                "Checking",
-                "Error"
-            ]
-        },
-        "application.ApplicationSummary": {
+        "server.Check": {
             "type": "object",
             "required": [
-                "applicationUrl",
-                "charts",
-                "instance",
-                "name",
-                "namespace",
                 "status"
             ],
             "properties": {
-                "applicationUrl": {
-                    "type": "string"
-                },
-                "charts": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/application.ChartSummary"
-                    }
-                },
-                "instance": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "namespace": {
-                    "type": "string"
-                },
                 "status": {
-                    "$ref": "#/definitions/application.ApplicationStatus"
+                    "type": "string"
                 }
             }
         },
-        "application.ChartSummary": {
+        "types.ApplicationStatus": {
+            "type": "string",
+            "enum": [
+                "Up-to-date",
+                "Ignored",
+                "Outdated"
+            ],
+            "x-enum-varnames": [
+                "UpToDate",
+                "Ignored",
+                "Outdated"
+            ]
+        },
+        "types.ChartSummary": {
             "type": "object",
             "required": [
                 "chart"
@@ -235,7 +228,7 @@ const docTemplate = `{
                 }
             }
         },
-        "application.GenealogyItem": {
+        "types.Parent": {
             "type": "object",
             "required": [
                 "kind",
@@ -260,14 +253,37 @@ const docTemplate = `{
                 }
             }
         },
-        "server.Check": {
+        "types.Summary": {
             "type": "object",
             "required": [
+                "applicationUrl",
+                "charts",
+                "instance",
+                "name",
+                "namespace",
                 "status"
             ],
             "properties": {
-                "status": {
+                "applicationUrl": {
                     "type": "string"
+                },
+                "charts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/types.ChartSummary"
+                    }
+                },
+                "instance": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "namespace": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/types.ApplicationStatus"
                 }
             }
         }

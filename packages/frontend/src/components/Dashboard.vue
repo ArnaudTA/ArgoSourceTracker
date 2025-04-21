@@ -7,7 +7,7 @@
 </template>
 <style scoped>
 .dashboard{
-    background-color: white;
+    /* background-color: white; */
     padding: 1rem;
 }
 </style>

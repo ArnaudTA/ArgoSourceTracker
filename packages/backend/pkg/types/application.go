@@ -6,11 +6,11 @@ type ApplicationStatus string
 
 const (
 	UpToDate ApplicationStatus = "Up-to-date"
-	Unknown  ApplicationStatus = "Unknown"
-	Outdated ApplicationStatus = "Outdated"
 	Ignored  ApplicationStatus = "Ignored"
-	Checking ApplicationStatus = "Checking"
-	Error    ApplicationStatus = "Error"
+	Outdated ApplicationStatus = "Outdated"
+	// Unknown  ApplicationStatus = "Unknown"
+	// Checking ApplicationStatus = "Checking"
+	// Error    ApplicationStatus = "Error"
 )
 
 type Summary struct {

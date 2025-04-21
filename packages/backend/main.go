@@ -5,9 +5,10 @@
 package main
 
 import (
+	"argocd-watcher/pkg/argocd"
 	"argocd-watcher/pkg/argocd/application"
 	"argocd-watcher/pkg/argocd/applicationset"
-	"argocd-watcher/pkg/argocd"
+	"argocd-watcher/pkg/cache"
 	"argocd-watcher/pkg/config"
 	"argocd-watcher/pkg/server"
 
@@ -26,5 +27,6 @@ func main() {
 	appClient := argocd.GetClient()
 	go application.Watch(appClient)
 	go applicationset.Watch(appClient)
+	cache.GetClient()
 	server.StartGin()
 }

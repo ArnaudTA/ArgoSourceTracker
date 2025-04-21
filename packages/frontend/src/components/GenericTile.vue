@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { ApplicationApplicationStatus } from '../api/Api';
+import { TypesApplicationStatus } from '../api/Api';
 import { statusClass } from '../utils/client';
 
 
 withDefaults(defineProps<{
     title?: string
-    status: ApplicationApplicationStatus | 'None'
+    status: TypesApplicationStatus | 'None'
 }>(), {
     status: 'None'
 })
@@ -13,7 +13,6 @@ withDefaults(defineProps<{
 </script>
 
 <template>
-
     <div :class="`node ${statusClass[status]}`" :title="title">
         <div class="node-content">
             <slot></slot>

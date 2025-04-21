@@ -1,7 +1,9 @@
 package cache
 
 import (
+	"argocd-watcher/pkg/config"
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -13,11 +15,11 @@ var rdbClient *redis.Client
 
 func GetClient() *redis.Client {
 	if rdbClient == nil {
+		addr := fmt.Sprintf("%s:%d", config.Global.Redis.Host, config.Global.Redis.Port)
 		rdbClient = redis.NewClient(&redis.Options{
-			Addr:     "redis:6379",
-			Password: "", // no password set
-			DB:       0,  // use default DB
-
+			Addr:     addr,
+			Password: config.Global.Redis.Password,
+			DB:       10, // use default DB
 		})
 	}
 	return rdbClient

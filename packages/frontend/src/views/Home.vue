@@ -1,45 +1,51 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
 import { goToApp } from '../utils/client'
 import GenericTile from '../components/GenericTile.vue'
 import { useHomeStore } from '../stores/home'
-import { Button } from 'primevue'
-import Dashboard from '../components/Dashboard.vue'
-import { ApplicationApplicationStatus } from '../api/Api'
+import { Button, MeterGroup, Paginator, ProgressBar, Toolbar } from 'primevue'
+import { TypesApplicationStatus } from '../api/Api'
 
 const homeStore = useHomeStore()
 
-
-onMounted(homeStore.fetchApps)
 </script>
 
 <template>
     <div class="layout">
-        <Dashboard class="dashboard">
-            <Button @click="homeStore.fetchApps()">Refresh</Button>
-            <div>
-                Items: {{ Object.keys(homeStore.applications).length }}
-            </div>
-        </Dashboard>
-        <div class="content">
+        <Toolbar style="padding: 1rem">
+            <template #start>
+                <Button icon="pi pi-refresh" @click="homeStore.refreshApps()" label="Refresh"></Button>
+            </template>
+            <template #end>
+                Total: {{ homeStore.total }}
+            </template>
+        </Toolbar>
 
-            <p v-if="homeStore.isLoading">Loading...</p>
-            <p v-else-if="homeStore.errorMessage">errorMessage</p>
+        <Toolbar style="padding: 1rem">
+            <template #center>
+                <Paginator :rows="homeStore.limit" :totalRecords="homeStore.total"
+                    :rowsPerPageOptions="[5, 10, 25, 100]" @update:last="homeStore.setPage" @page="homeStore.setPage">
+                </Paginator>
+            </template>
+        </Toolbar>
+        <div class="content">
+            <MeterGroup :value="homeStore.meters" :max="homeStore.applications.length" class="mb-4" />
+            <ProgressBar :class="{ invisible: !homeStore.isLoading }" mode="indeterminate" style="height: 6px"
+                class="mb-4">
+            </ProgressBar>
+            <p v-if="homeStore.errorMessage">errorMessage</p>
             <div v-else class="appList">
                 <GenericTile v-for="application in homeStore.applications" class="tile" @click="goToApp(application)"
-                    :status="(application.status as ApplicationApplicationStatus)">
+                    :status="(application.status as TypesApplicationStatus)">
                     <table>
                         <tbody>
                             <tr>
                                 <td>Name:</td>
                                 <td>{{ application.name }}</td>
                             </tr>
-
                             <tr>
                                 <td>Namespace:</td>
                                 <td>{{ application.namespace }}</td>
                             </tr>
-
                             <tr>
                                 <td>Status:</td>
                                 <td>{{ application.status }}</td>
@@ -53,9 +59,26 @@ onMounted(homeStore.fetchApps)
 </template>
 
 <style scoped>
+#pagination {
+    width: 100%;
+    height: 3rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+}
+
+#pagination-nav {
+    height: 3rem;
+    display: flex;
+    gap: .5rem;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
 .appList {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(350px, auto));
     /* Optionnel : espace entre les éléments */
     gap: 2rem;
 }

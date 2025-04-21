@@ -1,46 +1,23 @@
 basePath: /
 definitions:
-  application.ApplicationStatus:
+  server.Check:
+    properties:
+      status:
+        type: string
+    required:
+    - status
+    type: object
+  types.ApplicationStatus:
     enum:
     - Up-to-date
-    - Unknown
-    - Outdated
     - Ignored
-    - Checking
-    - Error
+    - Outdated
     type: string
     x-enum-varnames:
     - UpToDate
-    - Unknown
-    - Outdated
     - Ignored
-    - Checking
-    - Error
-  application.ApplicationSummary:
-    properties:
-      applicationUrl:
-        type: string
-      charts:
-        items:
-          $ref: '#/definitions/application.ChartSummary'
-        type: array
-      instance:
-        type: string
-      name:
-        type: string
-      namespace:
-        type: string
-      status:
-        $ref: '#/definitions/application.ApplicationStatus'
-    required:
-    - applicationUrl
-    - charts
-    - instance
-    - name
-    - namespace
-    - status
-    type: object
-  application.ChartSummary:
+    - Outdated
+  types.ChartSummary:
     properties:
       chart:
         type: string
@@ -59,7 +36,7 @@ definitions:
     required:
     - chart
     type: object
-  application.GenealogyItem:
+  types.Parent:
     properties:
       applicationUrl:
         type: string
@@ -76,11 +53,28 @@ definitions:
     - name
     - namespace
     type: object
-  server.Check:
+  types.Summary:
     properties:
-      status:
+      applicationUrl:
         type: string
+      charts:
+        items:
+          $ref: '#/definitions/types.ChartSummary'
+        type: array
+      instance:
+        type: string
+      name:
+        type: string
+      namespace:
+        type: string
+      status:
+        $ref: '#/definitions/types.ApplicationStatus'
     required:
+    - applicationUrl
+    - charts
+    - instance
+    - name
+    - namespace
     - status
     type: object
 info:
@@ -98,6 +92,14 @@ paths:
         in: query
         name: name
         type: string
+      - description: 'Number of elements to skip, default: 0'
+        in: query
+        name: offset
+        type: integer
+      - description: 'Number of elements to return, default: 10'
+        in: query
+        name: limit
+        type: integer
       - description: Filtre les applications
         in: query
         name: filter
@@ -109,7 +111,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/application.ApplicationSummary'
+              $ref: '#/definitions/types.Summary'
             type: array
       summary: Liste les applications
       tags:
@@ -133,8 +135,15 @@ paths:
       responses:
         "200":
           description: OK
+          headers:
+            x-offset:
+              description: Return the offset you provided
+              type: string
+            x-total:
+              description: Total of items available
+              type: string
           schema:
-            $ref: '#/definitions/application.ApplicationSummary'
+            $ref: '#/definitions/types.Summary'
       summary: Récupe une application
       tags:
       - Applications
@@ -159,7 +168,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/application.GenealogyItem'
+              $ref: '#/definitions/types.Parent'
             type: array
         "400":
           description: Bad Request

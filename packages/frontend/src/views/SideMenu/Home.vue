@@ -1,19 +1,16 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { Listbox } from 'primevue'
-import { useHomeStore } from '../../stores/home.ts'
-import { ApplicationApplicationStatus } from "../../api/Api.ts";
+import { useHomeStore } from "../../stores/home.ts";
 import GenericDrawer from "../../components/SideMenu/GenericDrawer.vue";
+import { MultiSelect } from "primevue";
+import { onMounted } from "vue";
 
 const homeStore = useHomeStore()
-
-const cities = ref<Array<{ code: ApplicationApplicationStatus }>>([
-    { code: ApplicationApplicationStatus.Outdated },
-]);
+onMounted(homeStore.refreshApps)
 </script>
 
 <template>
     <GenericDrawer>
-        <Listbox v-model="homeStore.filters" :options="cities" multiple optionLabel="name" class="w-full md:w-56" />
+        <MultiSelect v-model="homeStore.selectedStatus" :options="homeStore.StatusChoice" showClear optionLabel="name"
+            filter placeholder="Select Status" size="small" class="w-full" />
     </GenericDrawer>
 </template>

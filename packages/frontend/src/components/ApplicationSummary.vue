@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { ApplicationApplicationSummary } from '../api/Api'
+import type { TypesSummary } from '../api/Api'
 import SourceElement from './SourceElement.vue';
 
 // Props
 defineProps<{
-    summary: ApplicationApplicationSummary
+    summary: TypesSummary
     name: string
     namespace: string
 }>()

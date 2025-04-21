@@ -16,9 +16,16 @@ type ServerConfig struct {
 
 type ArgocdConfig struct {
 	Namespace        string `json:"ns" env:"ARGOCD_NS" default:"" flag:"argocd.ns"`
-	Url              string `json:"address" env:"ARGOCD_URL" default:"" flag:"argocd.url"`
+	Url              string `json:"url" env:"ARGOCD_URL" default:"" flag:"argocd.url"`
 	Instance         string `json:"instance" env:"ARGOCD_INSTANCE" default:"argo-cd" flag:"argocd.instance"`
 	InstanceLabelKey string `json:"instanceLabelKey"`
+}
+
+type RedisConfig struct {
+	Host     string `json:"host" env:"REDIS_HOST" default:"redis" flag:"redis.host"`
+	Port     int    `json:"port" env:"REDIS_PORT" default:"6379" flag:"redis.port"`
+	Db       int    `json:"db" env:"REDIS_DB" default:"0" flag:"redis.db"`
+	Password string `json:"password" env:"REDIS_PASSWORD" default:"" flag:"redis.password"`
 }
 
 type Config struct {
@@ -26,6 +33,7 @@ type Config struct {
 	RegistryCacheTTL int          `json:"registryCacheTTL" env:"REG_CACHE_TTL" default:"300" flag:"reg-cache-ttl"`
 	Kubeconfig       string       `json:"Kubeconfig" env:"KUBECONFIG" default:"" flag:"kubeconfig"`
 	Argocd           ArgocdConfig `json:"argocd"`
+	Redis            RedisConfig  `json:"redis"`
 }
 
 func loadStruct(v reflect.Value, t reflect.Type, flagSet *flag.FlagSet, flagValues map[string]*string) error {

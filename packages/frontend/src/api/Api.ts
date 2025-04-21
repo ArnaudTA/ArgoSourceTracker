@@ -10,25 +10,17 @@
  * ---------------------------------------------------------------
  */
 
-export enum ApplicationApplicationStatus {
+export enum TypesApplicationStatus {
   UpToDate = "Up-to-date",
-  Unknown = "Unknown",
-  Outdated = "Outdated",
   Ignored = "Ignored",
-  Checking = "Checking",
-  Error = "Error",
+  Outdated = "Outdated",
 }
 
-export interface ApplicationApplicationSummary {
-  applicationUrl: string;
-  charts: ApplicationChartSummary[];
-  instance: string;
-  name: string;
-  namespace: string;
-  status: ApplicationApplicationStatus;
+export interface ServerCheck {
+  status: string;
 }
 
-export interface ApplicationChartSummary {
+export interface TypesChartSummary {
   chart: string;
   newTags?: string[];
   repoURL?: string;
@@ -37,7 +29,7 @@ export interface ApplicationChartSummary {
   type?: string;
 }
 
-export interface ApplicationGenealogyItem {
+export interface TypesParent {
   applicationUrl?: string;
   errorMessage?: string;
   kind: string;
@@ -45,8 +37,13 @@ export interface ApplicationGenealogyItem {
   namespace: string;
 }
 
-export interface ServerCheck {
-  status: string;
+export interface TypesSummary {
+  applicationUrl: string;
+  charts: TypesChartSummary[];
+  instance: string;
+  name: string;
+  namespace: string;
+  status: TypesApplicationStatus;
 }
 
 import type {
@@ -247,12 +244,16 @@ export class Api<
       query?: {
         /** Name to search */
         name?: string;
+        /** Number of elements to skip, default: 0 */
+        offset?: number;
+        /** Number of elements to return, default: 10 */
+        limit?: number;
         /** Filtre les applications */
         filter?: string;
       },
       params: RequestParams = {},
     ) =>
-      this.request<ApplicationApplicationSummary[], any>({
+      this.request<TypesSummary[], any>({
         path: `/api/v1/apps`,
         method: "GET",
         query: query,
@@ -273,7 +274,7 @@ export class Api<
       namespace: string,
       params: RequestParams = {},
     ) =>
-      this.request<ApplicationApplicationSummary, any>({
+      this.request<TypesSummary, any>({
         path: `/api/v1/apps/${namespace}/${name}`,
         method: "GET",
         format: "json",
@@ -293,7 +294,7 @@ export class Api<
       namespace: string,
       params: RequestParams = {},
     ) =>
-      this.request<ApplicationGenealogyItem[], any>({
+      this.request<TypesParent[], any>({
         path: `/api/v1/apps/${namespace}/${name}/origin`,
         method: "GET",
         format: "json",

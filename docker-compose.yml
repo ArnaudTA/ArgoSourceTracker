@@ -20,6 +20,8 @@ services:
     image: ghcr.io/cableship/argocd-source-tracker-back:dev
     env_file:
       - .env
+    ports:
+      - "8080:8080"
     environment:
       - KUBECONFIG=/.kube/${KUBECONFIG_FILE:-config}
       - GO_ENV=development

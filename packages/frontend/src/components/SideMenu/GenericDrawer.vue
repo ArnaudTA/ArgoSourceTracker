@@ -22,11 +22,7 @@ const slots = defineSlots<{
 <style scoped>
 .drawer {
   padding: 0.5rem;
-  padding-left: 1rem;
   min-height: 2rem;
-}
-.drawer a:hover{
-  background-color: #1fbdd0;
 }
 .condensed {
   width: 4rem;

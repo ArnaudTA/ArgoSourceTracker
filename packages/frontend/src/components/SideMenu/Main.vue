@@ -4,11 +4,17 @@ import logoUrl from '../../assets/logo.png'
 import { Button } from "primevue";
 import GenericDrawer from "./GenericDrawer.vue";
 import { useSideMenuStore } from '../../stores/sideMenu';
+import router from '../../router';
 
 const sideMenuStore = useSideMenuStore()
 onMounted(async () => {
     sideMenuStore.checkHealth()
 })
+
+function toggleDarkMode() {
+    document.documentElement.classList.toggle('my-app-dark');
+}
+
 </script>
 
 <template>
@@ -17,12 +23,12 @@ onMounted(async () => {
             <div class="header" :class="{ menu: true, condensed: sideMenuStore.condensed }">
                 <img :src="logoUrl" alt="" srcset="">
                 <span v-if="!sideMenuStore.condensed">ArgoCD Source Tracker</span>
-                <Button class="expand-button" @click.prevent="sideMenuStore.condensed = !sideMenuStore.condensed">{{
+                <Button link class="expand-button" @click.prevent="sideMenuStore.condensed = !sideMenuStore.condensed">{{
                     !sideMenuStore.condensed ? "<" : ">" }}</Button>
             </div>
         </div>
         <GenericDrawer>
-            <Button as="a" href="/ui">Applications</Button>
+            <Button icon="pi pi-table" link label="Applications" @click="router.push({ name: 'Home' })"></Button>
         </GenericDrawer>
         <router-view name="menu"></router-view>
         <div class="separator"></div>
@@ -30,7 +36,10 @@ onMounted(async () => {
             Api status: {{ sideMenuStore.health }}
         </GenericDrawer>
         <GenericDrawer>
-            <Button as="a" href="/ui/docs">Documentation</Button>
+            <Button variant="link" as="a" href="/ui/docs">Documentation</Button>
+        </GenericDrawer>
+        <GenericDrawer>
+            <Button variant="outlined" label="Toggle Dark Mode" @click="toggleDarkMode()" />
         </GenericDrawer>
     </div>
 </template>
@@ -45,11 +54,6 @@ onMounted(async () => {
 
 #side-menu.condensed {
     width: 4rem;
-}
-
-a {
-    color: white;
-    text-decoration: none;
 }
 
 img {

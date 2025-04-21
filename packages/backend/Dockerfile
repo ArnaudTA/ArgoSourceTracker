@@ -4,7 +4,8 @@ WORKDIR /app
 
 # Install git and air for development
 RUN apk add --no-cache git && \
-    go install github.com/air-verse/air@latest
+    go install github.com/air-verse/air@latest && \
+    go install github.com/swaggo/swag/cmd/swag@latest
 
 COPY --chown=1000:1000 go.* ./
 RUN go mod download
