@@ -24,6 +24,8 @@ RUN npm run build
 
 FROM golang:1.24.2-alpine
 
+LABEL org.opencontainers.image.source="https://github.com/cableship/argocd-source-tracker"
+
 WORKDIR /app
 COPY packages/backend/go.* ./
 
@@ -35,3 +37,4 @@ ARG ARCH=
 EXPOSE 8080
 
 CMD ["./app"]
+

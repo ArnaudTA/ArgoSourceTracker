@@ -18,7 +18,7 @@ type ArgocdConfig struct {
 	Namespace        string `json:"ns" env:"ARGOCD_NS" default:"" flag:"argocd.ns"`
 	Url              string `json:"url" env:"ARGOCD_URL" default:"" flag:"argocd.url"`
 	Instance         string `json:"instance" env:"ARGOCD_INSTANCE" default:"argo-cd" flag:"argocd.instance"`
-	InstanceLabelKey string `json:"instanceLabelKey"`
+	InstanceLabelKey string `json:"instanceLabelKey" env:"ARGOCD_INSTANCE_LABEL_KEY" default:"" flag:"argocd.instance-label-key"`
 }
 
 type RedisConfig struct {
@@ -34,8 +34,8 @@ type LogConfig struct {
 }
 type Config struct {
 	Server           ServerConfig `json:"server"`
-	RegistryCacheTTL int          `json:"registryCacheTTL" env:"REG_CACHE_TTL" default:"300" flag:"reg-cache-ttl"`
-	Kubeconfig       string       `json:"Kubeconfig" env:"KUBECONFIG" default:"" flag:"kubeconfig"`
+	RegistryCacheTTL int          `json:"registryCacheTTL" env:"REG_CACHE_TTL" default:"30" flag:"reg-cache-ttl"`
+	Kubeconfig       string       `json:"kubeconfig" env:"KUBECONFIG" default:"" flag:"kubeconfig"`
 	Argocd           ArgocdConfig `json:"argocd"`
 	Redis            RedisConfig  `json:"redis"`
 	Log              LogConfig    `json:"log"`

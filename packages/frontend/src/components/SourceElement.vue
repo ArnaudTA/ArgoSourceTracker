@@ -26,7 +26,7 @@ const expanded = ref<boolean>(false)
             </div>
             <div v-if="newTags" class="mt-2">
                 <span>Newer Tags</span>
-                <div v-for="tag in expanded ? newTags : newTags.slice(0, 3)" :key="tag">
+                <div v-for="tag in expanded ? newTags : newTags.slice(0)" :key="tag">
                     {{ tag }}
                 </div>
             </div>
