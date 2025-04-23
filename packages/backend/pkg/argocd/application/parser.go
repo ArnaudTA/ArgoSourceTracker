@@ -5,6 +5,7 @@ import (
 	"argocd-watcher/pkg/config"
 	"argocd-watcher/pkg/registries"
 	"argocd-watcher/pkg/types"
+	"errors"
 	"fmt"
 	"sort"
 	"strings"
@@ -27,17 +28,18 @@ func GenerateChartSummary(source *types.ApplicationSourceWithRevision) types.Cha
 		status = types.Ignored
 		errorMessage = "Invalid semver"
 	} else {
-		index, err := registries.Search(source.Source.RepoURL)
+		newTags, err = registries.GetGreaterTags(source.Source.RepoURL, source.Source.Chart, version)
 		if err != nil {
-			status = types.Error
 			errorMessage = err.Error()
-		} else {
-			newTags = registries.GetGreaterTags(index, source.Source.RepoURL, source.Source.Chart, version)
-			if len(newTags) > 0 {
-				status = "Outdated"
+			if err == errors.ErrUnsupported {
+				status = types.Ignored
 			} else {
-				status = "Up-to-date"
+				status = types.Error
 			}
+		} else if len(newTags) > 0 {
+			status = "Outdated"
+		} else {
+			status = "Up-to-date"
 		}
 	}
 	return types.ChartSummary{
@@ -108,8 +110,8 @@ func List(statusFilter []string, name string, offset, limit int) types.ListAppli
 	resp := types.ListApplicationRes{
 		Items: []types.Summary{},
 		Stats: types.AppStats{
-			types.Error: 0,
-			types.Ignored: 0,
+			types.Error:    0,
+			types.Ignored:  0,
 			types.Outdated: 0,
 			types.UpToDate: 0,
 		},
@@ -167,7 +169,6 @@ func List(statusFilter []string, name string, offset, limit int) types.ListAppli
 	})
 	return resp
 }
-
 
 func getKeys(m *sync.Map) []string {
 	keys := []string{}

@@ -25,6 +25,7 @@ type RedisConfig struct {
 	Host     string `json:"host" env:"REDIS_HOST" default:"redis" flag:"redis.host"`
 	Port     int    `json:"port" env:"REDIS_PORT" default:"6379" flag:"redis.port"`
 	Db       int    `json:"db" env:"REDIS_DB" default:"0" flag:"redis.db"`
+	Enabled  bool   `json:"enabled" env:"REDIS_ENABLED" default:"true" flag:"redis.enabled"`
 	Password string `json:"password" env:"REDIS_PASSWORD" default:"" flag:"redis.password"`
 }
 

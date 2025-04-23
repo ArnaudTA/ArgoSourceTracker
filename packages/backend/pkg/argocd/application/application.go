@@ -26,7 +26,7 @@ func (app *Application) GetSummary() types.Summary {
 
 	return types.Summary{
 		Charts:         charts,
-		Status:         getApplicationStatus(charts),
+		Status:         mostSevereStatus(charts),
 		Instance:       instance,
 		Name:           app.Resource.Name,
 		Namespace:      app.Resource.Namespace,
@@ -81,13 +81,10 @@ func (app *Application) Parse() {
 	sources := app.ExtractSources()
 	app.Sources = sources
 	for _, source := range app.Sources {
-		if source.Source.RepoURL == "" {
+		if source.Source.RepoURL == "" || source.Source.Chart == "" {
 			continue
 		}
-		registries.Search(source.Source.RepoURL)
-		if source.Source.Chart == "" {
-			continue
-		}
+		registries.Search(source.Source.RepoURL, source.Source.Chart)
 	}
 }
 
@@ -95,18 +92,17 @@ func (app *Application) getApplicationUrl() string {
 	return fmt.Sprintf("%s/applications/%s/%s", config.Global.Argocd.Url, app.Resource.ObjectMeta.Namespace, app.Resource.ObjectMeta.Name)
 }
 
-func getApplicationStatus(charts []types.ChartSummary) types.ApplicationStatus {
+func mostSevereStatus(charts []types.ChartSummary) types.ApplicationStatus {
 	if len(charts) == 0 {
 		return types.Ignored
 	}
-	var worstStatus types.ApplicationStatus = types.UpToDate
+	worst := types.Ignored
+	maxSeverity := types.Severity[worst]
 	for _, chart := range charts {
-		if chart.Status == types.Error {
-			return types.Error
-		}
-		if chart.Status == "Outdated" {
-			worstStatus = types.Outdated
+		if sev, ok := types.Severity[chart.Status]; ok && sev > maxSeverity {
+			worst = chart.Status
+			maxSeverity = sev
 		}
 	}
-	return worstStatus
+	return worst
 }

@@ -1,16 +1,14 @@
 package registries
 
 import (
-	"argocd-watcher/pkg/cache"
-	"bytes"
-	"encoding/gob"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
-	"time"
 
-	"github.com/redis/go-redis/v9"
+	"github.com/go-redis/cache/v9"
+
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 )
@@ -28,75 +26,91 @@ type Metadata struct {
 // ChartVersions is a list of versioned chart references.
 // Implements a sorter on Version.
 type ChartVersions []Metadata
+
+type Entries map[string]ChartVersions
 type IndexFile struct {
-	Entries map[string]ChartVersions `json:"entries"`
+	Entries `json:"entries"`
 }
 
-func Search(registry string) (*IndexFile, error) {
-	if (!strings.HasPrefix(registry, "https://") && !strings.HasPrefix(registry, "http://")) || strings.HasSuffix(registry, ".git") {
-		return nil, errors.New("Don't support OCI registry yet")
+func Search(registryUrl, chartName string) (Chart, error) {
+	if (!strings.HasPrefix(registryUrl, "https://") && !strings.HasPrefix(registryUrl, "http://")) || strings.HasSuffix(registryUrl, ".git") {
+		return Chart{}, errors.ErrUnsupported
 	}
-	redisKey := generateKey(registry)
 
-	resultBytes, err := cache.Load(redisKey)
-	if err == redis.Nil {
-		logrus.Debugf("Fetching: %s\n", registry)
+	key := generateKey(registryUrl, chartName)
+	cached, err := ChartCache.Get(key)
 
-		// Appel HTTP pour récupérer le fichier index.yaml
-		resp, err := http.Get(registry + "/index.yaml")
-		if err != nil {
-			logrus.Fatalf("Erreur HTTP : %v", err)
-		}
-		defer resp.Body.Close()
-
-		if resp.StatusCode != http.StatusOK {
-			logrus.Errorf("Code HTTP inattendu : %d, for %s", resp.StatusCode, registry)
-		}
-
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			logrus.Fatalf("Erreur de lecture du body : %v", err)
-			panic(err)
-		}
-
-		// Parsing YAML au format Helm
-		index := IndexFile{}
-		if err := yaml.Unmarshal(body, &index); err != nil {
-			logrus.Fatalf("Erreur de parsing YAML : %v", err)
-		}
-
-		var buffer bytes.Buffer
-		enc := gob.NewEncoder(&buffer)
-		err = enc.Encode(index)
-		if err != nil {
-			logrus.Fatalf("Erreur d'encodage gob: %v", err)
-		}
-		indexGOB := buffer.Bytes()
-		cache.Store(redisKey, indexGOB, 0)
-
-		time.AfterFunc(300*time.Second, func() { Delete(registry) })
-
-		return &index, nil
+	if err == nil {
+		return cached, nil
 	}
+	entries, err := CallHTTP(registryUrl)
+
+	if err != nil && err != cache.ErrCacheMiss {
+		return Chart{}, err
+	}
+
+	storeEntries(registryUrl, entries)
+	cached, err = ChartCache.Get(key)
+
+	if err != nil && err != cache.ErrCacheMiss {
+		return Chart{}, err
+	}
+	return cached, nil
+	// if (!strings.HasPrefix(registryUrl, "https://") && !strings.HasPrefix(registryUrl, "http://")) || strings.HasSuffix(registryUrl, ".git") {
+	// 	return nil, errors.New("Don't support OCI registry yet")
+	// }
+
+	// if err != nil {
+	// 	logrus.WithError(err)
+	// 	return nil, err
+	// }
+	// logrus.Debugf("Use cache for: %s\n", registryUrl)
+}
+
+func generateKey(repository, chart string) string {
+	repository = strings.TrimSuffix(repository, "/")
+	return fmt.Sprintf("ast/registry/%s/%s", repository, chart)
+}
+
+func CallHTTP(repo string) (Entries, error) {
+	logrus.Debugf("Fetching: %s\n", repo)
+
+	// Appel HTTP pour récupérer le fichier index.yaml
+	resp, err := http.Get(repo + "/index.yaml")
 	if err != nil {
-		logrus.WithError(err)
+		logrus.Fatalf("Erreur HTTP : %v", err)
 		return nil, err
 	}
-	logrus.Debugf("Use cache for: %s\n", registry)
-	var cachedIndex *IndexFile
-	dec := gob.NewDecoder(bytes.NewReader(resultBytes))
-	err = dec.Decode(&cachedIndex)
-	if err != nil {
-		logrus.Errorf("Erreur de décodage gob: %v", err)
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		logrus.Errorf("Code HTTP inattendu : %d, for %s", resp.StatusCode, repo)
+		return nil, errors.New("unexpected http code")
 	}
-	return cachedIndex, nil
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		logrus.Errorf("Erreur de lecture du body : %v", err)
+		return nil, err
+	}
+
+	// Parsing YAML au format Helm
+	index := IndexFile{}
+	if err := yaml.Unmarshal(body, &index); err != nil {
+		logrus.Errorf("Erreur de parsing YAML : %v", err)
+		return nil, err
+	}
+
+	return index.Entries, nil
 }
 
-func Delete(registry string) {
-	cache.Delete(generateKey(registry))
-}
-
-func generateKey(registry string) string {
-	registry = strings.TrimSuffix(registry, "/")
-	return "ast/registry/" + registry
+func storeEntries(repo string, entries Entries) {
+	for chartName, entry := range entries {
+		chart := Chart{}
+		for _, metadata := range entry {
+			chart.Tags = append(chart.Tags, metadata.Version)
+		}
+		key := generateKey(repo, chartName)
+		ChartCache.Set(key, chart)
+	}
 }

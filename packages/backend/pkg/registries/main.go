@@ -1,28 +1,32 @@
 package registries
 
-import "github.com/blang/semver/v4"
+import (
+	"argocd-watcher/pkg/cachex"
+	"context"
 
-func GetGreaterTags(index *IndexFile, registry, chart string, minVersion semver.Version) []string {
+	"github.com/blang/semver/v4"
+)
+
+func GetGreaterTags(registry, chartName string, minVersion semver.Version) ([]string, error) {
 	tags := []string{}
 
-	if entry, ok := index.Entries[chart]; ok {
-		for _, version := range entry {
-			candidateVersion, _ := semver.Parse(version.Version)
-			if minVersion.LT(candidateVersion) {
-				tags = append(tags, version.Version)
-			}
+	chart, err := Search(registry, chartName)
+
+	if err != nil {
+		return nil, err
+	}
+	for _, version := range chart.Tags {
+		candidateVersion, _ := semver.Parse(version)
+		if minVersion.LT(candidateVersion) {
+			tags = append(tags, version)
 		}
 	}
-	return tags
+	return tags, nil
 }
 
-func GetTags(registry, chart string) []string {
-	tags := []string{}
-	index, _ := Search(registry)
-	if entry, ok := index.Entries[chart]; ok {
-		for _, version := range entry {
-			tags = append(tags, version.Version)
-		}
-	}
-	return tags
+var ChartCache *cachex.CacheService[Chart]
+
+func Init() {
+	ctx := context.Background()
+	ChartCache = cachex.NewCacheService[Chart](ctx, "cache:invalidation")
 }

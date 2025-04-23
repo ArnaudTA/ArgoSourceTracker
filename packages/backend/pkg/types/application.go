@@ -5,11 +5,18 @@ import "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 type ApplicationStatus string
 
 const (
+	Error    ApplicationStatus = "Error"
+	Outdated ApplicationStatus = "Outdated"
 	UpToDate ApplicationStatus = "Up-to-date"
 	Ignored  ApplicationStatus = "Ignored"
-	Outdated ApplicationStatus = "Outdated"
-	Error    ApplicationStatus = "Error"
 )
+
+var Severity = map[ApplicationStatus]int{
+	Error:    3,
+	Outdated: 2,
+	UpToDate: 1,
+	Ignored:  0,
+}
 
 type Summary struct {
 	Name           string            `json:"name" binding:"required"`

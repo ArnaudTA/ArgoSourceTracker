@@ -8,10 +8,10 @@ import (
 	"argocd-watcher/pkg/argocd"
 	"argocd-watcher/pkg/argocd/application"
 	"argocd-watcher/pkg/argocd/applicationset"
-	"argocd-watcher/pkg/cache"
 	"argocd-watcher/pkg/config"
 	"argocd-watcher/pkg/metrics"
 	"argocd-watcher/pkg/server"
+	"argocd-watcher/pkg/registries"
 
 	"github.com/sirupsen/logrus"
 )
@@ -28,7 +28,7 @@ func main() {
 	appClient := argocd.GetClient()
 	go application.Watch(appClient)
 	go applicationset.Watch(appClient)
-	cache.GetClient()
+	registries.Init()
 	metrics.Init()
 	server.StartGin()
 }
