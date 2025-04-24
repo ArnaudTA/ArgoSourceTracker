@@ -45,5 +45,5 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.HELM_UPDATER }}
         run: |
-          gh workflow --repo ${{ github.repository_owner }}/helm-charts run update-chart.yaml -f APP_VERSION=${{ github.ref_name }} -f CHART_NAME=argocd-source-tracker
+          gh workflow --repo ${{ github.repository_owner }}/helm-charts run update-chart.yaml -f APP_VERSION=${{ github.ref_name }} -f CHART_NAME=chart-sentinel
         

@@ -1,8 +1,9 @@
 package metrics
 
 import (
-	"argocd-watcher/pkg/config"
 	"fmt"
+
+	"github.com/cableship/chart-sentinel/pkg/config"
 
 	"github.com/gin-gonic/gin"
 	"github.com/penglongli/gin-metrics/ginmetrics"

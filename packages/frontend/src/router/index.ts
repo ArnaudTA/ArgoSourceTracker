@@ -12,7 +12,7 @@ const HomeSideMenu = () => import('../views/SideMenu/Home.vue')
 const NotFound = () => import('../views/NotFound.vue')
 const ApplicationDetails = () => import('../views/ApplicationDetails.vue')
 
-const MAIN_TITLE = 'ArgoCD Source Tracker'
+const MAIN_TITLE = 'ChartSentinel'
 
 export const routes: Readonly<RouteRecordRaw[]> = [
     {

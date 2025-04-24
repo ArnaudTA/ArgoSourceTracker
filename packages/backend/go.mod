@@ -1,4 +1,4 @@
-module argocd-watcher
+module github.com/cableship/chart-sentinel
 
 go 1.23.0
 
@@ -18,6 +18,7 @@ require (
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/apimachinery v0.31.2
 	k8s.io/client-go v0.31.2
+	oras.land/oras-go/v2 v2.5.0
 )
 
 require (
@@ -163,7 +164,6 @@ require (
 	k8s.io/kubectl v0.31.2 // indirect
 	k8s.io/kubernetes v1.31.0 // indirect
 	k8s.io/utils v0.0.0-20240711033017-18e509b52bc8 // indirect
-	oras.land/oras-go/v2 v2.5.0 // indirect
 	sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd // indirect
 	sigs.k8s.io/kustomize/api v0.17.2 // indirect
 	sigs.k8s.io/kustomize/kyaml v0.17.1 // indirect

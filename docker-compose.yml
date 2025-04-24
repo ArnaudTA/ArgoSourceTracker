@@ -3,7 +3,7 @@ services:
     build:
       context: ./packages/frontend
       dockerfile: Dockerfile
-    image: ghcr.io/cableship/argocd-source-tracker-front:dev
+    image: ghcr.io/cableship/chart-sentinel-client:dev
     ports:
       - "3000:3000"
     volumes:
@@ -17,7 +17,7 @@ services:
     build:
       context: ./packages/backend
       dockerfile: Dockerfile
-    image: ghcr.io/cableship/argocd-source-tracker-back:dev
+    image: ghcr.io/cableship/chart-sentinel-api:dev
     env_file:
       - .env
     ports:

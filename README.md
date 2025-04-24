@@ -1,24 +1,23 @@
-# ArgoSourceTracker
+# ChartSentinel 🛡️
 
-Petit serveur web en Go qui expose une API REST pour surveiller les Applications (ArgoCD) dans un cluster Kubernetes
+**ChartSentinel** is a lightweight monitoring tool that watches ArgoCD applications and detects when deployed Helm charts are outdated.
 
-Généres un rapport listant les tags disponibles pour chaque charts supérieur à la version actuellement installée
+## 🚀 Features
+- Watches ArgoCD apps in real time
+- Detects new versions of deployed Helm charts
+- Notifies via logs, metrics, or external hooks (Slack, Webhook, etc.)
+- Deployable via Helm chart
 
-## ⚙️ Installation
-*Incoming*
-
-
-## Développement
-
-### 1. Pré-requis
-
-- Go 1.20+
-- Un accès à un cluster Kubernetes (via `~/.kube/config`)
-- ArgoCD installé dans le cluster (ou au moins des applications)
-
-### 2. Clone du projet
+## 🛠️ Install
 
 ```bash
-git clone https://github.com/ArnaudTA/ArgoSourceTracker.git
-cd ArgoSourceTracker
-go mod tidy
+helm repo add chartsentinel https://your-domain.com/charts
+helm install chartsentinel chartsentinel/chartsentinel
+
+## ⚙️ Configuration
+
+Via Helm values, environment, or flags. See values.yaml.
+
+## 📡 Metrics
+
+Exposes Prometheus metrics on /metrics.

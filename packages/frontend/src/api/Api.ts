@@ -142,7 +142,7 @@ export class HttpClient<SecurityDataType = unknown> {
       headers: {
         ...((method &&
           this.instance.defaults.headers[
-            method.toLowerCase() as keyof HeadersDefaults
+          method.toLowerCase() as keyof HeadersDefaults
           ]) ||
           {}),
         ...(params1.headers || {}),
@@ -230,7 +230,7 @@ export class HttpClient<SecurityDataType = unknown> {
 }
 
 /**
- * @title ArgoSourceTracker API
+ * @title ChartSentinel API
  * @version 1.0
  * @baseUrl /
  * @contact

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import logoUrl from '../../assets/logo.png'
+import logoUrl from '../../assets/no-background-light.png'
 import { Button } from "primevue";
 import GenericDrawer from "./GenericDrawer.vue";
 import { useSideMenuStore } from '../../stores/sideMenu';
@@ -18,7 +18,7 @@ onMounted(async () => {
         <div>
             <div class="header" :class="{ menu: true, condensed: sideMenuStore.condensed }">
                 <img :src="logoUrl" alt="" srcset="">
-                <span v-if="!sideMenuStore.condensed">ArgoCD Source Tracker</span>
+                <span v-if="!sideMenuStore.condensed">ChartSentinel</span>
                 <Button link class="expand-button"
                     @click.prevent="sideMenuStore.condensed = !sideMenuStore.condensed">{{
                         !sideMenuStore.condensed ? "<" : ">" }}</Button>

@@ -2,7 +2,7 @@
     "swagger": "2.0",
     "info": {
         "description": "API simple pour lister les applications ArgoCD et suivre les versions des charts",
-        "title": "ArgoSourceTracker API",
+        "title": "ChartSentinel API",
         "contact": {},
         "version": "1.0"
     },

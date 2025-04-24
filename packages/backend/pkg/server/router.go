@@ -1,13 +1,14 @@
 package server
 
 import (
-	"argocd-watcher/pkg/config"
-	"argocd-watcher/pkg/metrics"
 	"fmt"
 	"net/http"
 	"strconv"
 
-	_ "argocd-watcher/docs" // 👈 important pour init Swagger
+	"github.com/cableship/chart-sentinel/pkg/config"
+	"github.com/cableship/chart-sentinel/pkg/metrics"
+
+	_ "github.com/cableship/chart-sentinel/docs" // 👈 important pour init Swagger
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -77,7 +78,7 @@ func setupRouter() *gin.Engine {
 
 	listen := fmt.Sprintf("%s:%d", config.Global.Server.Address, config.Global.Server.Port)
 	logrus.Infof("Server listen on: %s\n", listen)
-	
+
 	r.Run(listen)
 
 	return r

@@ -5,7 +5,7 @@ definitions:
       status:
         type: string
     required:
-    - status
+      - status
     type: object
   types.AppStats:
     additionalProperties:
@@ -13,16 +13,16 @@ definitions:
     type: object
   types.ApplicationStatus:
     enum:
-    - Up-to-date
-    - Ignored
-    - Outdated
-    - Error
+      - Up-to-date
+      - Ignored
+      - Outdated
+      - Error
     type: string
     x-enum-varnames:
-    - UpToDate
-    - Ignored
-    - Outdated
-    - Error
+      - UpToDate
+      - Ignored
+      - Outdated
+      - Error
   types.ChartSummary:
     properties:
       chart:
@@ -38,23 +38,23 @@ definitions:
       revision:
         type: string
       status:
-        $ref: '#/definitions/types.ApplicationStatus'
+        $ref: "#/definitions/types.ApplicationStatus"
       type:
         type: string
     required:
-    - chart
+      - chart
     type: object
   types.ListApplicationRes:
     properties:
       items:
         items:
-          $ref: '#/definitions/types.Summary'
+          $ref: "#/definitions/types.Summary"
         type: array
       stats:
-        $ref: '#/definitions/types.AppStats'
+        $ref: "#/definitions/types.AppStats"
     required:
-    - items
-    - stats
+      - items
+      - stats
     type: object
   types.Parent:
     properties:
@@ -69,9 +69,9 @@ definitions:
       namespace:
         type: string
     required:
-    - kind
-    - name
-    - namespace
+      - kind
+      - name
+      - namespace
     type: object
   types.Summary:
     properties:
@@ -79,7 +79,7 @@ definitions:
         type: string
       charts:
         items:
-          $ref: '#/definitions/types.ChartSummary'
+          $ref: "#/definitions/types.ChartSummary"
         type: array
       instance:
         type: string
@@ -88,68 +88,69 @@ definitions:
       namespace:
         type: string
       status:
-        $ref: '#/definitions/types.ApplicationStatus'
+        $ref: "#/definitions/types.ApplicationStatus"
     required:
-    - applicationUrl
-    - charts
-    - instance
-    - name
-    - namespace
-    - status
+      - applicationUrl
+      - charts
+      - instance
+      - name
+      - namespace
+      - status
     type: object
 info:
   contact: {}
-  description: API simple pour lister les applications ArgoCD et suivre les versions
+  description:
+    API simple pour lister les applications ArgoCD et suivre les versions
     des charts
-  title: ArgoSourceTracker API
+  title: ChartSentinel API
   version: "1.0"
 paths:
   /api/v1/apps:
     get:
       description: Retourne la liste des applications et le rapport des versions
       parameters:
-      - description: Name to search
-        in: query
-        name: name
-        type: string
-      - description: 'Number of elements to skip, default: 0'
-        in: query
-        name: offset
-        type: integer
-      - description: 'Number of elements to return, default: 10'
-        in: query
-        name: limit
-        type: integer
-      - description: Filtre les applications
-        in: query
-        name: filter
-        type: string
+        - description: Name to search
+          in: query
+          name: name
+          type: string
+        - description: "Number of elements to skip, default: 0"
+          in: query
+          name: offset
+          type: integer
+        - description: "Number of elements to return, default: 10"
+          in: query
+          name: limit
+          type: integer
+        - description: Filtre les applications
+          in: query
+          name: filter
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/types.ListApplicationRes'
+            $ref: "#/definitions/types.ListApplicationRes"
       summary: Liste les applications
       tags:
-      - Applications
+        - Applications
   /api/v1/apps/{namespace}/{name}:
     get:
       description: Retourne application et le rapport de versions
       parameters:
-      - description: Application cible
-        in: path
-        name: name
-        required: true
-        type: string
-      - description: Namespace cible
-        in: path
-        name: namespace
-        required: true
-        type: string
+        - description: Application cible
+          in: path
+          name: name
+          required: true
+          type: string
+        - description: Namespace cible
+          in: path
+          name: namespace
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
@@ -161,50 +162,50 @@ paths:
               description: Total of items available
               type: string
           schema:
-            $ref: '#/definitions/types.Summary'
+            $ref: "#/definitions/types.Summary"
       summary: Récupe une application
       tags:
-      - Applications
+        - Applications
   /api/v1/apps/{namespace}/{name}/origin:
     get:
       description: Liste les applications et applications qui ménent à cette application
       parameters:
-      - description: Application cible
-        in: path
-        name: name
-        required: true
-        type: string
-      - description: Namespace cible
-        in: path
-        name: namespace
-        required: true
-        type: string
+        - description: Application cible
+          in: path
+          name: name
+          required: true
+          type: string
+        - description: Namespace cible
+          in: path
+          name: namespace
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
           schema:
             items:
-              $ref: '#/definitions/types.Parent'
+              $ref: "#/definitions/types.Parent"
             type: array
         "400":
           description: Bad Request
           schema: {}
       summary: Remonte l'origine d'une application
       tags:
-      - Track Origin
+        - Track Origin
   /api/v1/health:
     get:
       description: Retourne le status de l'application
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/server.Check'
+            $ref: "#/definitions/server.Check"
       summary: Status
       tags:
-      - Healthcheck
+        - Healthcheck
 swagger: "2.0"

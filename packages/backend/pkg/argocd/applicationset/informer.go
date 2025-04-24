@@ -1,10 +1,11 @@
 package applicationset
 
 import (
-	"argocd-watcher/pkg/config"
 	"fmt"
 	"sync"
 	"time"
+
+	"github.com/cableship/chart-sentinel/pkg/config"
 
 	"github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 	"github.com/argoproj/argo-cd/v2/pkg/client/clientset/versioned"

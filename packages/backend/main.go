@@ -1,17 +1,17 @@
-// @title ArgoSourceTracker API
+// @title ChartSentinel API
 // @version 1.0
-// @description API simple pour lister les applications ArgoCD et suivre les versions des charts
+// @description Track ArgoCD applications and charts version
 // @BasePath /
 package main
 
 import (
-	"argocd-watcher/pkg/argocd"
-	"argocd-watcher/pkg/argocd/application"
-	"argocd-watcher/pkg/argocd/applicationset"
-	"argocd-watcher/pkg/config"
-	"argocd-watcher/pkg/metrics"
-	"argocd-watcher/pkg/server"
-	"argocd-watcher/pkg/registries"
+	"github.com/cableship/chart-sentinel/pkg/argocd"
+	"github.com/cableship/chart-sentinel/pkg/argocd/application"
+	"github.com/cableship/chart-sentinel/pkg/argocd/applicationset"
+	"github.com/cableship/chart-sentinel/pkg/config"
+	"github.com/cableship/chart-sentinel/pkg/metrics"
+	"github.com/cableship/chart-sentinel/pkg/registries"
+	"github.com/cableship/chart-sentinel/pkg/server"
 
 	"github.com/sirupsen/logrus"
 )

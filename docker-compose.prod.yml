@@ -3,6 +3,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: ghcr.io/arnaudta/argosourcetracker:dev
+    image: ghcr.io/cableship/chart-sentinel:dev
     ports:
       - "8080:8080"

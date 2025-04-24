@@ -1,10 +1,11 @@
 package server
 
 import (
-	"argocd-watcher/pkg/argocd/application"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/cableship/chart-sentinel/pkg/argocd/application"
 
 	"github.com/gin-gonic/gin"
 )

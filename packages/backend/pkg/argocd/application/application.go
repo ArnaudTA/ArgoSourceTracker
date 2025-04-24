@@ -1,10 +1,11 @@
 package application
 
 import (
-	"argocd-watcher/pkg/config"
-	"argocd-watcher/pkg/registries"
-	"argocd-watcher/pkg/types"
 	"fmt"
+
+	"github.com/cableship/chart-sentinel/pkg/config"
+	"github.com/cableship/chart-sentinel/pkg/registries"
+	"github.com/cableship/chart-sentinel/pkg/types"
 
 	"github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 )

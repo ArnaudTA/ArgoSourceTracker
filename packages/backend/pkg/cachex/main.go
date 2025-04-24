@@ -1,11 +1,12 @@
 package cachex
 
 import (
-	"argocd-watcher/pkg/config"
 	"context"
 	"fmt"
 	"log"
 	"time"
+
+	"github.com/cableship/chart-sentinel/pkg/config"
 
 	"github.com/go-redis/cache/v9"
 	"github.com/redis/go-redis/v9"

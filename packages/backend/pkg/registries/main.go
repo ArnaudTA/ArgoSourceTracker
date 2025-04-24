@@ -1,8 +1,9 @@
 package registries
 
 import (
-	"argocd-watcher/pkg/cachex"
 	"context"
+
+	"github.com/cableship/chart-sentinel/pkg/cachex"
 
 	"github.com/blang/semver/v4"
 )

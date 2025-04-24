@@ -1,9 +1,10 @@
 package metrics
 
 import (
-	"argocd-watcher/pkg/argocd/application"
-	"argocd-watcher/pkg/config"
 	"time"
+
+	"github.com/cableship/chart-sentinel/pkg/argocd/application"
+	"github.com/cableship/chart-sentinel/pkg/config"
 )
 
 func StartAppMonitor() {

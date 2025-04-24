@@ -1,15 +1,16 @@
 package application
 
 import (
-	"argocd-watcher/pkg/argocd/applicationset"
-	"argocd-watcher/pkg/config"
-	"argocd-watcher/pkg/registries"
-	"argocd-watcher/pkg/types"
 	"errors"
 	"fmt"
 	"sort"
 	"strings"
 	"sync"
+
+	"github.com/cableship/chart-sentinel/pkg/argocd/applicationset"
+	"github.com/cableship/chart-sentinel/pkg/config"
+	"github.com/cableship/chart-sentinel/pkg/registries"
+	"github.com/cableship/chart-sentinel/pkg/types"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 

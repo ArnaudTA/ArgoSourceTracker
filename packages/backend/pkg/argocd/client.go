@@ -1,16 +1,16 @@
 package argocd
 
 import (
-	cfg "argocd-watcher/pkg/config"
 	"context"
 	"os"
 
+	cfg "github.com/cableship/chart-sentinel/pkg/config"
+
+	appclientset "github.com/argoproj/argo-cd/v2/pkg/client/clientset/versioned"
 	"github.com/sirupsen/logrus"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
-	appclientset "github.com/argoproj/argo-cd/v2/pkg/client/clientset/versioned"
-
 )
 
 func LoadArgoConf() {
@@ -60,16 +60,16 @@ func LoadArgoConf() {
 }
 
 func GetClient() *appclientset.Clientset {
-		// Charger la config Kube
-		config, err := clientcmd.BuildConfigFromFlags("", cfg.Global.Kubeconfig)
-		if err != nil {
-			logrus.Fatalf("Erreur lors du chargement de la config K8s: %v", err)
-		}
-	
-		// Création du client ArgoCD typé
-		appClient, err := appclientset.NewForConfig(config)
-		if err != nil {
-			panic(err)
-		}
-		return appClient
+	// Charger la config Kube
+	config, err := clientcmd.BuildConfigFromFlags("", cfg.Global.Kubeconfig)
+	if err != nil {
+		logrus.Fatalf("Erreur lors du chargement de la config K8s: %v", err)
+	}
+
+	// Création du client ArgoCD typé
+	appClient, err := appclientset.NewForConfig(config)
+	if err != nil {
+		panic(err)
+	}
+	return appClient
 }

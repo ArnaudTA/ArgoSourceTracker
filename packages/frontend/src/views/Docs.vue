@@ -12,11 +12,11 @@ import { Button } from 'primevue';
         </div>
         <div class="element">
             <p>Source Code</p>
-            <Button as="a" href="https://github.com/cableship/argocd-source-tracker">EXPLORE CODE</Button>
+            <Button as="a" href="https://github.com/cableship/chart-sentinel">EXPLORE CODE</Button>
         </div>
         <div class="element">
             <p>ArtifactHub</p>
-            <Button as="a" href="https://artifacthub.io/packages/helm/cableship/argocd-source-tracker">VIEW ON
+            <Button as="a" href="https://artifacthub.io/packages/helm/cableship/chart-sentinel">VIEW ON
                 ARTIFACTHUB</Button>
         </div>
     </div>
